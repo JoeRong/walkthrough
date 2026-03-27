@@ -4,35 +4,51 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>打通：从救火到造流水线</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;700;900&display=swap');
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── Reset ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #0a0a0a;
-  --fg: #e8e8e8;
-  --dim: #666;
-  --accent: #4A7FD4;
-  --accent2: #2B9B8F;
-  --red: #D45B4A;
-  --yellow: #D4A44A;
-  --slide-pad: 80px;
+  /* OKLCH-inspired palette, fallback to hex */
+  --surface-0: #0c0b0e;
+  --surface-1: #13121a;
+  --surface-2: #1c1b26;
+  --text-primary: #e6e4ed;
+  --text-secondary: #8e8b9e;
+  --text-tertiary: #5c5970;
+  --accent: #6e8cfc;
+  --accent-dim: #3d4f8a;
+  --warm: #e8a87c;
+  --warm-dim: #5c3f2e;
+  --green: #7cc9a8;
+  --green-dim: #2a4a3a;
+  --red: #d47b7b;
+  --red-dim: #4a2a2a;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 html, body {
   width: 100%; height: 100%;
   overflow: hidden;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: 'Noto Sans SC', -apple-system, sans-serif;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
 }
 
-/* ---- Slide container ---- */
+/* ── Deck ── */
 #deck {
   display: flex;
   height: 100%;
-  transition: transform 0.7s cubic-bezier(0.4, 0, 0.15, 1);
+  transition: transform 0.8s var(--ease-out-expo);
+  will-change: transform;
 }
 
 .slide {
@@ -41,248 +57,331 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: var(--slide-pad) 12vw;
+  padding: 0 14vw;
   position: relative;
-  opacity: 0.3;
-  transition: opacity 0.7s ease;
 }
-.slide.active { opacity: 1; }
 
-/* ---- Typography ---- */
-.slide h1 {
+/* ── Typography ── */
+.serif { font-family: 'Noto Serif SC', 'Georgia', serif; }
+
+h1 {
   font-family: 'Noto Serif SC', serif;
-  font-size: 64px;
+  font-size: clamp(2.8rem, 6vw, 5rem);
   font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 24px;
-  letter-spacing: -1px;
+  letter-spacing: -0.01em;
+  margin-bottom: 2rem;
 }
-.slide h2 {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 1.25;
-  margin-bottom: 20px;
-}
-.slide p {
-  font-size: 26px;
-  line-height: 1.8;
-  color: #ccc;
-  max-width: 800px;
+
+.body-lg {
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  line-height: 1.85;
+  color: var(--text-secondary);
+  max-width: 52ch;
   font-weight: 300;
 }
-.slide p + p { margin-top: 20px; }
 
-.slide .big {
-  font-size: 42px;
-  font-weight: 500;
-  color: var(--fg);
-  line-height: 1.5;
+.body-lg + .body-lg { margin-top: 1.25rem; }
+
+.body-lg strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }
-.slide .huge {
+
+.number-hero {
   font-family: 'Noto Serif SC', serif;
-  font-size: 56px;
+  font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 900;
-  color: var(--fg);
-  line-height: 1.3;
+  line-height: 1;
+  color: var(--text-primary);
 }
 
-.slide .accent { color: var(--accent); }
-.slide .accent2 { color: var(--accent2); }
-.slide .red { color: var(--red); }
-.slide .yellow { color: var(--yellow); }
-.slide .dim { color: var(--dim); font-size: 20px; }
-
-.slide strong {
-  color: #fff;
-  font-weight: 700;
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
 }
 
-/* ---- Reveal animation ---- */
-.reveal {
+.caption {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+/* ── Reveal system ── */
+.r {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-out-quart), transform 0.7s var(--ease-out-quart);
 }
-.slide.active .reveal {
-  opacity: 1;
-  transform: translateY(0);
-}
-.slide.active .reveal.d1 { transition-delay: 0.15s; }
-.slide.active .reveal.d2 { transition-delay: 0.3s; }
-.slide.active .reveal.d3 { transition-delay: 0.45s; }
-.slide.active .reveal.d4 { transition-delay: 0.6s; }
-.slide.active .reveal.d5 { transition-delay: 0.75s; }
-.slide.active .reveal.d6 { transition-delay: 0.9s; }
+.slide.active .r { opacity: 1; transform: translateY(0); }
+.slide.active .r.d1 { transition-delay: 0.12s; }
+.slide.active .r.d2 { transition-delay: 0.24s; }
+.slide.active .r.d3 { transition-delay: 0.36s; }
+.slide.active .r.d4 { transition-delay: 0.48s; }
+.slide.active .r.d5 { transition-delay: 0.6s; }
+.slide.active .r.d6 { transition-delay: 0.72s; }
+.slide.active .r.d7 { transition-delay: 0.84s; }
 
-/* ---- Number badge ---- */
-.slide-num {
+/* ── Slide number ── */
+.sn {
   position: absolute;
-  top: 40px;
-  right: 60px;
-  font-size: 16px;
-  color: #333;
-  font-weight: 500;
-  letter-spacing: 2px;
+  top: 3rem;
+  left: 14vw;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.15em;
 }
 
-/* ---- Title slide ---- */
-.title-slide {
-  align-items: center;
-  text-align: center;
+/* ── Title slide ── */
+.slide--title {
+  align-items: flex-start;
 }
-.title-slide h1 {
-  font-size: 80px;
-  margin-bottom: 32px;
+.slide--title h1 {
+  font-size: clamp(3.5rem, 8vw, 6.5rem);
 }
-.title-slide .subtitle {
-  font-size: 24px;
-  color: var(--dim);
+.slide--title .subtitle {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  color: var(--text-tertiary);
   font-weight: 300;
+  letter-spacing: 0.04em;
 }
 
-/* ---- Quote ---- */
-.quote {
+/* ── Quote slide ── */
+.quote-block {
+  position: relative;
+  padding-left: 2rem;
+  max-width: 600px;
+}
+.quote-block::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.3rem;
+  bottom: 0.3rem;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.quote-text {
   font-family: 'Noto Serif SC', serif;
-  font-size: 36px;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
   font-weight: 400;
   line-height: 1.7;
-  color: var(--fg);
-  border-left: 4px solid var(--accent);
-  padding-left: 32px;
-  max-width: 750px;
+  color: var(--text-primary);
+}
+.quote-text em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 700;
 }
 
-/* ---- Pipeline table ---- */
-.pipeline {
+/* ── Pipeline comparison ── */
+.pipeline-compare {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin-top: 16px;
+  gap: 3rem;
+  margin-top: 1.5rem;
 }
-.pipeline-row {
+.pipe-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 22px;
-  line-height: 1.6;
+  gap: 2rem;
 }
-.pipeline-label {
-  width: 60px;
-  font-size: 16px;
-  color: var(--dim);
-  text-align: right;
+.pipe-label {
+  width: 48px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
   flex-shrink: 0;
-  font-weight: 500;
 }
-.pipeline-flow {
+.pipe-nodes {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   flex-wrap: wrap;
 }
-.pipeline-flow .node {
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 18px;
+.pipe-node {
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
   font-weight: 500;
+  white-space: nowrap;
 }
-.pipeline-flow .node.human {
-  background: rgba(212, 91, 74, 0.15);
+.pipe-node.human {
+  background: var(--red-dim);
   color: var(--red);
-  border: 1px solid rgba(212, 91, 74, 0.3);
 }
-.pipeline-flow .node.ai {
-  background: rgba(43, 155, 143, 0.15);
-  color: var(--accent2);
-  border: 1px solid rgba(43, 155, 143, 0.3);
+.pipe-node.ai {
+  background: var(--green-dim);
+  color: var(--green);
 }
-.pipeline-flow .node.auto {
-  background: rgba(74, 127, 212, 0.15);
-  color: var(--accent);
-  border: 1px solid rgba(74, 127, 212, 0.3);
+.pipe-node.neutral {
+  background: var(--surface-2);
+  color: var(--text-secondary);
 }
-.pipeline-flow .arrow {
-  color: #444;
-  font-size: 16px;
+.pipe-arrow {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  opacity: 0.5;
 }
-.pipeline-time {
+.pipe-time {
   margin-left: auto;
-  font-size: 28px;
-  font-weight: 700;
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 900;
+  flex-shrink: 0;
 }
-.pipeline-time.slow { color: var(--red); }
-.pipeline-time.fast { color: var(--accent2); }
+.pipe-time.slow { color: var(--red); }
+.pipe-time.fast { color: var(--green); }
 
-/* ---- Step blocks ---- */
-.steps {
-  display: flex;
-  gap: 24px;
-  margin-top: 24px;
-  flex-wrap: wrap;
+/* ── Insight cards ── */
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
 }
-.step-card {
-  flex: 1;
-  min-width: 200px;
-  padding: 28px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+.insight-card {
+  padding: 1.75rem;
+  border-radius: 12px;
+  background: var(--surface-1);
+  border: 1px solid rgba(255,255,255,0.04);
 }
-.step-card h3 {
-  font-size: 18px;
+.insight-card .ic-title {
+  font-size: 0.95rem;
   font-weight: 700;
-  margin-bottom: 10px;
   color: var(--accent);
+  margin-bottom: 0.6rem;
 }
-.step-card p {
-  font-size: 18px;
-  line-height: 1.6;
-  color: #999;
+.insight-card .ic-body {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+.insight-card .ic-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
-/* ---- Keyword highlight ---- */
+/* ── Contrast pair ── */
+.contrast-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.contrast-box {
+  padding: 2rem;
+  border-radius: 12px;
+  background: var(--surface-1);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.contrast-box .cb-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.contrast-box .cb-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.contrast-box .cb-body {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+/* ── Keyword tag ── */
 .kw {
   display: inline-block;
-  padding: 2px 12px;
-  border-radius: 6px;
-  background: rgba(74, 127, 212, 0.12);
-  color: var(--accent);
+  padding: 0.15rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.9em;
   font-weight: 500;
 }
+.kw--accent { background: rgba(110,140,252,0.12); color: var(--accent); }
+.kw--green { background: rgba(124,201,168,0.12); color: var(--green); }
+.kw--warm { background: rgba(232,168,124,0.12); color: var(--warm); }
 
-/* ---- Progress bar ---- */
+/* ── Divider line ── */
+.divider {
+  width: 48px;
+  height: 2px;
+  background: var(--text-tertiary);
+  border-radius: 1px;
+  margin: 1.5rem 0;
+  opacity: 0.4;
+}
+
+/* ── Progress ── */
 #progress {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
-  height: 3px;
+  height: 2px;
   background: var(--accent);
-  transition: width 0.7s cubic-bezier(0.4, 0, 0.15, 1);
+  transition: width 0.8s var(--ease-out-expo);
   z-index: 100;
+  opacity: 0.7;
 }
 
-/* ---- Nav hint ---- */
-#nav-hint {
+/* ── Nav ── */
+#nav {
   position: fixed;
-  bottom: 28px;
-  right: 40px;
-  font-size: 14px;
-  color: #333;
+  bottom: 2.5rem;
+  right: 3rem;
+  display: flex;
+  gap: 0.5rem;
   z-index: 100;
-  transition: opacity 0.3s;
+}
+.nav-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  opacity: 0.3;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.3s var(--ease-out-quart);
+}
+.nav-dot.active {
+  opacity: 1;
+  background: var(--accent);
+  transform: scale(1.4);
 }
 
-/* ---- Responsive ---- */
-@media (max-width: 900px) {
-  .slide { padding: 40px 8vw; }
-  .slide h1 { font-size: 42px; }
-  .slide h2 { font-size: 34px; }
-  .slide p { font-size: 20px; }
-  .title-slide h1 { font-size: 48px; }
-  .big { font-size: 30px !important; }
-  .huge { font-size: 38px !important; }
-  .quote { font-size: 26px; }
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .slide { padding: 0 8vw; }
+  .sn { left: 8vw; }
+  .contrast-pair { grid-template-columns: 1fr; }
+  #nav { bottom: 1.5rem; right: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .r { transition: none; opacity: 1; transform: none; }
+  #deck { transition: none; }
 }
 </style>
 </head>
@@ -290,226 +389,237 @@ html, body {
 
 <div id="deck">
 
-  <!-- 0: Title -->
-  <div class="slide title-slide">
-    <div class="slide-num">00</div>
-    <h1 class="reveal">打通</h1>
-    <p class="reveal d1 subtitle" style="font-size:30px; color:#888;">从救火到造流水线</p>
-    <p class="reveal d2 subtitle" style="margin-top:60px;">Joe Rong · 2026</p>
+  <!-- 0: Cover -->
+  <div class="slide slide--title">
+    <span class="sn">JOE RONG · 2026</span>
+    <h1 class="r">打通</h1>
+    <p class="r d1 subtitle serif" style="font-size: 1.4rem; color: var(--text-tertiary);">从救火到造流水线</p>
   </div>
 
   <!-- 1: 堵车 -->
   <div class="slide">
-    <div class="slide-num">01</div>
-    <h2 class="reveal" style="color:var(--red);">堵车</h2>
-    <p class="reveal d1 big" style="margin-top:20px;">两周。</p>
-    <p class="reveal d2">一个设计需求从读 Spec 到看见可测试的 Demo，至少两周。</p>
-    <p class="reveal d3">不是因为需求复杂——是因为<strong>每个环节都在排队。</strong></p>
-    <p class="reveal d4">设计等前端，前端等排期，排期等资源。<br>设计稿做完了，躺在那儿，没人能验证。</p>
-    <p class="reveal d5" style="margin-top:32px; color:var(--fg); font-size:32px; font-weight:500;">瓶颈到底在哪？</p>
+    <span class="sn">01</span>
+    <div class="r number-hero" style="color: var(--red);">两周。</div>
+    <div class="divider r d1"></div>
+    <p class="r d2 body-lg">一个设计需求从读 Spec 到可测试的 Demo，至少两周。</p>
+    <p class="r d3 body-lg">不是因为需求复杂——是因为<strong>每个环节都在排队。</strong></p>
+    <p class="r d4 body-lg">设计等前端，前端等排期，排期等资源。<br>设计稿做完了，躺在那儿，没人能验证。</p>
+    <p class="r d5 body-lg" style="margin-top: 2rem; color: var(--text-primary); font-weight: 500; font-size: clamp(1.3rem, 2.2vw, 1.7rem);">瓶颈到底在哪？</p>
   </div>
 
   <!-- 2: 绕路 -->
   <div class="slide">
-    <div class="slide-num">02</div>
-    <h2 class="reveal" style="color:var(--yellow);">绕路</h2>
-    <p class="reveal d1">瓶颈在 <strong>Demo</strong>。</p>
-    <p class="reveal d2">设计完成后，必须等前端手写代码、部署环境，大家才能看到效果。<br>这个环节吃人力、吃时间——而产出只是用来验证，不是最终上线的代码。</p>
-    <p class="reveal d3" style="margin-top:28px; color:var(--fg); font-weight:500; font-size:28px;">那能不能跳过它？</p>
-    <p class="reveal d4">我和后端同事一起，做了一个 <span class="kw">Figma-to-Code 平台</span>。<br>设计师上传文件，平台自动读取、渲染、部署。<br>配合 Data Schema，灌入真实数据。</p>
-    <p class="reveal d5 big" style="margin-top:24px; color:var(--accent2);">从两周 → 当天。</p>
+    <span class="sn">02</span>
+    <h2 class="r" style="color: var(--warm);">绕路</h2>
+    <p class="r d1 body-lg">瓶颈在 <strong>Demo</strong>。必须等前端手写代码，大家才能看到效果。<br>这个环节吃人力、吃时间——而产出只是验证用。</p>
+    <p class="r d2 body-lg" style="margin-top: 1.5rem; color: var(--text-primary); font-weight: 500;">那能不能跳过它？</p>
+    <p class="r d3 body-lg">我和后端一起做了 <span class="kw kw--accent">Figma-to-Code 平台</span>。<br>设计师上传文件，平台自动读取、渲染、部署。<br>配合 Data Schema，灌入真实数据。</p>
+    <div class="divider r d4"></div>
+    <p class="r d5 body-lg" style="color: var(--green); font-weight: 600; font-size: clamp(1.4rem, 2.5vw, 1.8rem);">从两周，变成当天。</p>
+    <p class="r d6 caption">这个平台现在整个产品团队都在用。</p>
   </div>
 
   <!-- 3: 意外发现 -->
   <div class="slide">
-    <div class="slide-num">03</div>
-    <h2 class="reveal" style="color:var(--accent);">意外发现</h2>
-    <p class="reveal d1">做这个平台的过程中，踩了无数坑。</p>
-    <p class="reveal d2">Figma Make 有时还原度很高，有时一塌糊涂。<br>我们反复测试，想找到"稳定输出"的开关。</p>
-    <p class="reveal d3" style="margin-top:24px;">后来发现了规律：</p>
-    <div class="reveal d4 steps" style="margin-top:12px;">
-      <div class="step-card">
-        <h3>Design Guideline</h3>
-        <p>设计规范越精确，AI 输出越稳定</p>
+    <span class="sn">03</span>
+    <h2 class="r">意外发现</h2>
+    <p class="r d1 body-lg">Figma Make 有时还原度很高，有时一塌糊涂。<br>我们反复调参，想找到那个"稳定输出"的开关。</p>
+    <div class="r d2 cards-row">
+      <div class="insight-card">
+        <div class="ic-title">Design Guideline</div>
+        <div class="ic-body">设计规范越精确<br>AI 输出越稳定</div>
       </div>
-      <div class="step-card">
-        <h3 style="color:var(--accent2)">Global CSS</h3>
-        <p>样式定义越完整，还原度越高</p>
+      <div class="insight-card">
+        <div class="ic-title" style="color: var(--green);">Global CSS</div>
+        <div class="ic-body">样式定义越完整<br>还原度越高</div>
       </div>
     </div>
-    <p class="reveal d5" style="margin-top:24px; font-weight:500; color:var(--fg); font-size:28px;">不是运气，是喂给它的"规则"够清晰。</p>
+    <div class="divider r d3"></div>
+    <p class="r d4 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.2rem, 2vw, 1.5rem);">不是运气——是喂给它的<strong>规则</strong>够清晰。</p>
   </div>
 
   <!-- 4: 反向 -->
   <div class="slide">
-    <div class="slide-num">04</div>
-    <h2 class="reveal" style="color:var(--accent2);">反向</h2>
-    <p class="reveal d1">既然 Guideline + CSS 能保证 <strong>Design → Code</strong> 的质量……</p>
-    <p class="reveal d2 big" style="margin-top:16px;">那能不能反过来？<br>用 AI 生成设计？</p>
-    <p class="reveal d3" style="margin-top:20px;">我整理了 News Team 过去上百个设计文件，<br>让 AI 提炼出专属于 News 产品的视觉语言。</p>
-    <p class="reveal d4" style="margin-top:20px;">然后做了实验——设计师不画图，只写 Prompt。<br><span class="kw">Magazine Timeline</span> · <span class="kw">Digest Card</span></p>
-    <p class="reveal d5 big" style="margin-top:20px; color:var(--accent);">Prompt → Design，跑通了。</p>
+    <span class="sn">04</span>
+    <h2 class="r" style="color: var(--accent);">反向</h2>
+    <p class="r d1 body-lg">Guideline + CSS 保证了 <strong>Design → Code</strong> 的质量。</p>
+    <p class="r d2 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.3rem, 2.2vw, 1.7rem); margin-top: 1rem;">那能不能反过来？用 AI 生成设计？</p>
+    <p class="r d3 body-lg" style="margin-top: 1rem;">我整理了 News Team 过去上百个设计文件，<br>提炼出专属 News 的视觉语言。</p>
+    <p class="r d4 body-lg">然后实验：设计师不画图，只写 Prompt。<br><span class="kw kw--warm">Magazine Timeline</span>&ensp;<span class="kw kw--warm">Digest Card</span></p>
+    <div class="divider r d5"></div>
+    <p class="r d6 body-lg" style="color: var(--accent); font-weight: 700; font-size: clamp(1.3rem, 2.2vw, 1.7rem);">Prompt → Design，跑通了。</p>
   </div>
 
   <!-- 5: 继续推 -->
   <div class="slide">
-    <div class="slide-num">05</div>
-    <h2 class="reveal">继续推</h2>
-    <p class="reveal d1"><span class="kw" style="background:rgba(43,155,143,0.12); color:var(--accent2);">Design → Code</span> ✅<br><span class="kw">Prompt → Design</span> ✅</p>
-    <p class="reveal d2" style="margin-top:20px;">链路还剩一个断点：<strong>Spec → Prompt</strong></p>
-    <p class="reveal d3" style="margin-top:16px;">设计师拿到 Spec 后在想什么？<br>哪些信息是关键？哪些约束影响方向？哪些问题要先澄清？</p>
-    <p class="reveal d4" style="margin-top:16px;">我把这个思考过程拆解成一个 <span class="kw" style="background:rgba(212,164,74,0.12); color:var(--yellow);">Skill</span>，<br>用多轮对话实现。AI 按设计师的思考模式提问、拆解——<br>最后输出高质量 Prompt。</p>
-    <p class="reveal d5 dim" style="margin-top:20px;">这部分还在 building，但逻辑已经跑通。</p>
+    <span class="sn">05</span>
+    <h2 class="r">继续推</h2>
+    <p class="r d1 body-lg">
+      <span class="kw kw--green">Design → Code</span> ✓&emsp;
+      <span class="kw kw--accent">Prompt → Design</span> ✓
+    </p>
+    <p class="r d2 body-lg" style="margin-top: 1.5rem;">链路还剩一个断点：<strong>Spec → Prompt</strong></p>
+    <p class="r d3 body-lg">设计师看 Spec 时在想什么？<br>哪些信息关键？哪些约束影响方向？</p>
+    <p class="r d4 body-lg" style="margin-top: 1rem;">我把这个思考过程拆解成 <span class="kw kw--warm">Skill</span>——<br>AI 按设计师的思维模式提问、拆解，输出高质量 Prompt。</p>
+    <p class="r d5 caption" style="margin-top: 1rem;">这部分还在 building，但逻辑已经跑通。</p>
   </div>
 
-  <!-- 6: 一条线 (Pipeline) -->
+  <!-- 6: 一条线 -->
   <div class="slide">
-    <div class="slide-num">06</div>
-    <h2 class="reveal">一条线</h2>
-    <div class="pipeline reveal d1" style="margin-top:20px;">
-      <div class="pipeline-row">
-        <div class="pipeline-label">以前</div>
-        <div class="pipeline-flow">
-          <span class="node human">Spec</span>
-          <span class="arrow">→</span>
-          <span class="node human">人读</span>
-          <span class="arrow">→</span>
-          <span class="node human">人想</span>
-          <span class="arrow">→</span>
-          <span class="node human">人设计</span>
-          <span class="arrow">→</span>
-          <span class="node human">人写代码</span>
-          <span class="arrow">→</span>
-          <span class="node human">Deploy</span>
+    <span class="sn">06</span>
+    <h2 class="r">一条线</h2>
+    <div class="r d1 pipeline-compare">
+      <div class="pipe-row">
+        <div class="pipe-label">以前</div>
+        <div class="pipe-nodes">
+          <span class="pipe-node human">Spec</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node human">人读</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node human">人想</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node human">人设计</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node human">人写代码</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node human">Deploy</span>
         </div>
-        <div class="pipeline-time slow">2 周</div>
+        <div class="pipe-time slow">2 周</div>
+      </div>
+      <div class="pipe-row r d3">
+        <div class="pipe-label">现在</div>
+        <div class="pipe-nodes">
+          <span class="pipe-node neutral">Spec</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node ai">AI 拆解</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node ai">AI 设计</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node ai">AI 写码</span>
+          <span class="pipe-arrow">→</span>
+          <span class="pipe-node ai">自动部署</span>
+        </div>
+        <div class="pipe-time fast">1 天</div>
       </div>
     </div>
-    <div class="pipeline reveal d3" style="margin-top:8px;">
-      <div class="pipeline-row">
-        <div class="pipeline-label">现在</div>
-        <div class="pipeline-flow">
-          <span class="node auto">Spec</span>
-          <span class="arrow">→</span>
-          <span class="node ai">AI 拆解</span>
-          <span class="arrow">→</span>
-          <span class="node ai">AI 生成设计</span>
-          <span class="arrow">→</span>
-          <span class="node ai">AI 生成代码</span>
-          <span class="arrow">→</span>
-          <span class="node auto">自动 Deploy</span>
-        </div>
-        <div class="pipeline-time fast">1 天</div>
-      </div>
-    </div>
-    <p class="reveal d5" style="margin-top:40px; font-size:28px; color:var(--fg); font-weight:500;">救火救着救着，发现自己在造流水线。</p>
+    <div class="divider r d5"></div>
+    <p class="r d6 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.2rem, 2vw, 1.45rem);">救火救着救着，发现自己在造流水线。</p>
   </div>
 
   <!-- 7: 不只是提效 -->
   <div class="slide">
-    <div class="slide-num">07</div>
-    <h2 class="reveal">不只是提效</h2>
-    <div class="reveal d1 steps" style="margin-top:16px;">
-      <div class="step-card" style="border-color:rgba(212,91,74,0.2);">
-        <h3 style="color:var(--red);">以前</h3>
-        <p>设计师是<strong style="color:var(--red);">执行者</strong><br>拿到需求，画图，交付<br>一个人的产能 = 一个人的产能</p>
+    <span class="sn">07</span>
+    <h2 class="r">不只是提效</h2>
+    <div class="r d1 contrast-pair">
+      <div class="contrast-box">
+        <div class="cb-label" style="color: var(--red);">以前</div>
+        <div class="cb-title" style="color: var(--red);">执行者</div>
+        <div class="cb-body">拿到需求，画图，交付。<br>一个人的产能 = 一个人的产能。<br>线性增长。</div>
       </div>
-      <div class="step-card" style="border-color:rgba(43,155,143,0.2);">
-        <h3 style="color:var(--accent2);">现在</h3>
-        <p>设计师是<strong style="color:var(--accent2);">规则制定者</strong><br>定义 Guideline、CSS、思考框架<br>AI 按你的规则，批量生成</p>
+      <div class="contrast-box">
+        <div class="cb-label" style="color: var(--green);">现在</div>
+        <div class="cb-title" style="color: var(--green);">规则制定者</div>
+        <div class="cb-body">定义 Guideline、CSS、思考框架。<br>AI 按你的规则，批量生成。<br>指数增长。</div>
       </div>
     </div>
-    <p class="reveal d3" style="margin-top:32px;">你的产能不再是你画了多少图。<br>而是你建立的系统，能生成多少图。</p>
-    <p class="reveal d4 big" style="margin-top:20px; color:var(--accent2);">从手工作坊，到流水线。</p>
+    <div class="divider r d3"></div>
+    <p class="r d4 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.2rem, 2vw, 1.5rem);">你的产能不再是你画了多少图，<br>而是你建立的系统能生成多少图。</p>
   </div>
 
   <!-- 8: 下一步 -->
   <div class="slide">
-    <div class="slide-num">08</div>
-    <h2 class="reveal">下一步</h2>
-    <div class="reveal d1 steps" style="margin-top:16px;">
-      <div class="step-card">
-        <h3>Design Guideline</h3>
-        <p>不是文档——是给 AI 的<strong>指令集</strong></p>
+    <span class="sn">08</span>
+    <h2 class="r">下一步</h2>
+    <div class="r d1 cards-row" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="insight-card">
+        <div class="ic-title">Design Guideline</div>
+        <div class="ic-body">不是文档——<br>是给 AI 的<strong>指令集</strong></div>
       </div>
-      <div class="step-card">
-        <h3 style="color:var(--accent2);">Global CSS</h3>
-        <p>不是样式表——是视觉语言的<strong>编码</strong></p>
+      <div class="insight-card">
+        <div class="ic-title" style="color: var(--green);">Global CSS</div>
+        <div class="ic-body">不是样式表——<br>是视觉语言的<strong>编码</strong></div>
       </div>
-      <div class="step-card">
-        <h3 style="color:var(--yellow);">Skill</h3>
-        <p>不是流程图——是思考方式的<strong>外化</strong></p>
+      <div class="insight-card">
+        <div class="ic-title" style="color: var(--warm);">Skill</div>
+        <div class="ic-body">不是流程图——<br>是思考方式的<strong>外化</strong></div>
       </div>
     </div>
-    <p class="reveal d3" style="margin-top:32px;">我们不是在用 AI 替代设计师。<br>我们是在<strong>把设计师的能力，变成可复用、可放大的资产。</strong></p>
+    <div class="divider r d3"></div>
+    <p class="r d4 body-lg">我们不是在用 AI 替代设计师。<br>我们是在<strong>把设计师的能力，变成可复用、可放大的资产。</strong></p>
   </div>
 
-  <!-- 9: 一句话 -->
-  <div class="slide title-slide">
-    <div class="slide-num">09</div>
-    <p class="reveal quote" style="text-align:left;">从救火到造流水线，<br>从解决问题到设计系统。<br><br>AI 没有替代我——<br><strong style="color:var(--accent)">它放大了我。</strong></p>
+  <!-- 9: End -->
+  <div class="slide">
+    <span class="sn">09</span>
+    <div class="r quote-block">
+      <p class="quote-text">
+        从救火到造流水线，<br>
+        从解决问题到设计系统。<br><br>
+        AI 没有替代我——<br>
+        <em>它放大了我。</em>
+      </p>
+    </div>
   </div>
 
 </div>
 
 <div id="progress"></div>
-<div id="nav-hint">← → 翻页 · 空格下一页</div>
+<div id="nav"></div>
 
 <script>
 const slides = document.querySelectorAll('.slide');
 const deck = document.getElementById('deck');
 const progress = document.getElementById('progress');
+const nav = document.getElementById('nav');
 const total = slides.length;
 let current = 0;
 
-function goto(n) {
+// Build nav dots
+slides.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot';
+  dot.addEventListener('click', () => go(i));
+  nav.appendChild(dot);
+});
+const dots = document.querySelectorAll('.nav-dot');
+
+function go(n) {
   current = Math.max(0, Math.min(n, total - 1));
   deck.style.transform = `translateX(-${current * 100}vw)`;
   slides.forEach((s, i) => s.classList.toggle('active', i === current));
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
   progress.style.width = `${((current + 1) / total) * 100}%`;
 }
 
 // Keyboard
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown') {
-    e.preventDefault(); goto(current + 1);
-  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-    e.preventDefault(); goto(current - 1);
-  } else if (e.key === 'Home') {
-    goto(0);
-  } else if (e.key === 'End') {
-    goto(total - 1);
-  }
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'PageDown') {
+    e.preventDefault(); go(current + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+    e.preventDefault(); go(current - 1);
+  } else if (e.key === 'Home') { go(0); }
+  else if (e.key === 'End') { go(total - 1); }
 });
 
-// Touch swipe
-let touchX = 0;
-document.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; });
+// Touch
+let tx = 0;
+document.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; }, { passive: true });
 document.addEventListener('touchend', (e) => {
-  const dx = e.changedTouches[0].clientX - touchX;
-  if (Math.abs(dx) > 50) goto(current + (dx < 0 ? 1 : -1));
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
 });
 
-// Mouse wheel
-let wheelCooldown = false;
+// Wheel (debounced)
+let wc = false;
 document.addEventListener('wheel', (e) => {
-  if (wheelCooldown) return;
-  wheelCooldown = true;
-  setTimeout(() => wheelCooldown = false, 800);
-  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-    goto(current + (e.deltaX > 0 ? 1 : -1));
-  } else {
-    goto(current + (e.deltaY > 0 ? 1 : -1));
-  }
+  if (wc) return;
+  wc = true;
+  setTimeout(() => wc = false, 900);
+  const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  go(current + (d > 0 ? 1 : -1));
 }, { passive: true });
 
-// Init
-goto(0);
-
-// Fade nav hint
-setTimeout(() => {
-  document.getElementById('nav-hint').style.opacity = '0';
-}, 5000);
+go(0);
 </script>
 </body>
 </html>
