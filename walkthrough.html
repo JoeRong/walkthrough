@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>打通</title>
+<title>Unblocked</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -38,8 +38,8 @@
 
   /* type — Space Grotesk (display) + Instrument Serif (editorial) + Noto Serif SC (中文) */
   --sans: 'Space Grotesk', system-ui, sans-serif;
-  --serif: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
-  --serif-cn: 'Noto Serif SC', Georgia, serif;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --serif-cn: 'Instrument Serif', Georgia, serif;
 
   /* motion — spring-like expo curves */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -747,9 +747,9 @@ html, body {
 }
 .s9-em {
   display: block;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   font-family: var(--serif);
-  font-size: clamp(3rem, 5.5vw, 5rem);
+  font-size: clamp(2.5rem, 4.5vw, 4rem);
   font-weight: 400;
   font-style: italic;
   color: var(--dark-text);
@@ -817,63 +817,63 @@ html, body {
 
   <!-- 0: COVER -->
   <div class="slide s0">
-    <div class="rv s0-title">打通</div>
-    <div class="rv dl1 s0-sub">从救火到造流水线</div>
+    <div class="rv s0-title">Unblocked</div>
+    <div class="rv dl1 s0-sub">From firefighting to building the pipeline</div>
     <div class="rv dl2 s0-meta">JOE RONG<br>2026</div>
   </div>
 
-  <!-- 1: 堵车 -->
+  <!-- 1: THE BOTTLENECK -->
   <div class="slide s1">
     <div class="s1-impact">
       <div class="rv-pop s1-num">2</div>
-      <div class="rv dl2 s1-num-unit">周</div>
+      <div class="rv dl2 s1-num-unit">weeks</div>
     </div>
     <div class="s1-text">
-      <p class="rv dl1">一个设计需求从读 Spec 到可测试的 Demo，<strong>至少两周。</strong></p>
-      <p class="rv dl2">不是因为需求复杂——是因为每个环节都在排队。设计等前端，前端等排期，排期等资源。</p>
-      <p class="rv dl3">设计稿做完了，躺在那儿，没人能验证。</p>
-      <div class="rv dl4 s1-q">瓶颈到底在哪？</div>
+      <p class="rv dl1">From reading a spec to a testable demo — <strong>two weeks minimum.</strong></p>
+      <p class="rv dl2">Not because the work was complex. Because <strong>every step was queued.</strong> Design waits for frontend. Frontend waits for scheduling. Scheduling waits for headcount.</p>
+      <p class="rv dl3">The mockup sits there, finished. No one can validate it.</p>
+      <div class="rv dl4 s1-q">Where's the real bottleneck?</div>
     </div>
   </div>
 
-  <!-- 2: 绕路 -->
+  <!-- 2: THE DETOUR -->
   <div class="slide s2">
-    <div class="rv tag s2-tag" style="color: var(--accent); margin-bottom: 1.5rem;">02 · 绕路</div>
-    <h2 class="rv dl1">瓶颈在 Demo</h2>
-    <p class="rv dl2 s2-body">必须等前端手写代码、部署环境，大家才能看到效果。这个环节吃人力、吃时间——而产出只是验证用的，不是最终上线的代码。</p>
-    <p class="rv dl3 s2-body">我和后端一起做了 Figma-to-Code 平台。设计师上传文件，平台自动读取、渲染、部署。配合 Data Schema，灌入真实数据。</p>
+    <div class="rv tag s2-tag" style="color: var(--accent); margin-bottom: 1.5rem;">02 · The Detour</div>
+    <h2 class="rv dl1">The bottleneck is the demo</h2>
+    <p class="rv dl2 s2-body">You need a developer to hand-code it, deploy an environment, before anyone can see the result. This step eats time and headcount — for an artifact that's throwaway, not production code.</p>
+    <p class="rv dl3 s2-body">I partnered with a backend engineer to build a Figma-to-Code platform. Designers upload files, the platform reads, renders, and deploys automatically. Paired with Data Schema, it injects real data.</p>
     <div class="rv dl4 s2-shift">
-      <span class="s2-old">两周</span>
+      <span class="s2-old">2 weeks</span>
       <span class="s2-arrow">→</span>
-      <span class="s2-new">当天</span>
+      <span class="s2-new">Same day</span>
     </div>
   </div>
 
-  <!-- 3: 意外发现 -->
+  <!-- 3: THE INSIGHT -->
   <div class="slide s3">
-    <h2 class="rv">意外发现</h2>
-    <p class="rv dl1 s3-body">Figma Make 有时还原度很高，有时一塌糊涂。我们反复测试，想找到"稳定输出"的开关。</p>
+    <h2 class="rv">Unexpected discovery</h2>
+    <p class="rv dl1 s3-body">Figma Make's output was inconsistent — sometimes pixel-perfect, sometimes unusable. We tested obsessively, looking for the switch that makes AI output reliable.</p>
     <div class="rv-wipe dl2 s3-line"></div>
     <div class="s3-grid">
       <div class="rv dl3 s3-card">
         <div class="tag s3-card-tag">Design Guideline</div>
-        <p>规范越精确，<br>AI 输出越稳定</p>
+        <p>The more precise the spec,<br>the more stable the output</p>
       </div>
       <div class="rv dl4 s3-card">
         <div class="tag s3-card-tag">Global CSS</div>
-        <p>样式越完整，<br>还原度越高</p>
+        <p>The more complete the styles,<br>the higher the fidelity</p>
       </div>
     </div>
-    <p class="rv dl5 s3-punch">不是运气——是喂给它的规则够清晰。</p>
+    <p class="rv dl5 s3-punch">It wasn't luck — it was the clarity of the rules we fed it.</p>
   </div>
 
-  <!-- 4: 反向 -->
+  <!-- 4: THE REVERSAL -->
   <div class="slide s4">
     <div class="s4-content">
-      <h2 class="rv">能不能反过来？</h2>
-      <p class="rv dl1 s4-body">我整理了 News Team 过去上百个设计文件，提炼出专属的视觉语言。</p>
-      <p class="rv dl2 s4-body">然后实验：设计师不画图，只写 Prompt。Magazine Timeline，Digest Card。</p>
-      <div class="rv dl3 s4-win">✓ Prompt → Design，跑通了</div>
+      <h2 class="rv">What if we reverse it?</h2>
+      <p class="rv dl1 s4-body">I distilled hundreds of past design files from the News Team into a proprietary visual language.</p>
+      <p class="rv dl2 s4-body">Then the experiment: designers don't draw — they write prompts. Magazine Timeline. Digest Card.</p>
+      <div class="rv dl3 s4-win">✓ Prompt → Design — it worked</div>
     </div>
     <div class="s4-panel">
       <div class="rv dl2 s4-step">
@@ -893,9 +893,9 @@ html, body {
     </div>
   </div>
 
-  <!-- 5: 继续推 -->
+  <!-- 5: PUSHING FURTHER -->
   <div class="slide s5">
-    <h2 class="rv">继续推</h2>
+    <h2 class="rv">Keep pushing</h2>
     <div class="rv dl1 s5-checks">
       <span class="s5-check">
         <span class="s5-check-icon"><svg viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="1.5"><polyline points="2,5 4.5,7.5 8,3"/></svg></span>
@@ -906,97 +906,97 @@ html, body {
         Prompt → Design
       </span>
     </div>
-    <p class="rv dl2 s5-body">链路还剩一个断点：<strong>Spec → Prompt</strong></p>
-    <p class="rv dl3 s5-body">设计师看 Spec 时在想什么？哪些信息是关键？哪些约束会影响方向？</p>
-    <p class="rv dl4 s5-body">我把这个思考过程拆解成一个 Skill——AI 按设计师的思维模式提问、拆解，最后输出高质量 Prompt。</p>
+    <p class="rv dl2 s5-body">One gap remains: <strong>Spec → Prompt</strong></p>
+    <p class="rv dl3 s5-body">What does a designer actually think about when reading a spec? Which constraints shape the direction? Which details matter?</p>
+    <p class="rv dl4 s5-body">I decomposed that thinking process into a Skill — AI asks the right questions, breaks down the problem like a designer would, and outputs a high-quality prompt.</p>
     <div class="rv dl5 s5-badge"><span class="s5-pulse"></span> Building</div>
   </div>
 
-  <!-- 6: 一条线 -->
+  <!-- 6: THE PIPELINE -->
   <div class="slide s6">
-    <h2 class="rv">一条线</h2>
+    <h2 class="rv">One pipeline</h2>
     <div class="s6-compare">
       <div class="rv dl1 s6-row">
-        <div class="s6-label">以前</div>
+        <div class="s6-label">Before</div>
         <div class="s6-flow">
           <span class="s6-node human">Spec</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node human">人读</span>
+          <span class="s6-node human">Read</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node human">人想</span>
+          <span class="s6-node human">Think</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node human">人画</span>
+          <span class="s6-node human">Design</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node human">人写码</span>
+          <span class="s6-node human">Code</span>
           <span class="s6-chevron">›</span>
           <span class="s6-node human">Deploy</span>
         </div>
-        <div class="s6-duration slow">2 周</div>
+        <div class="s6-duration slow">2 wks</div>
       </div>
       <div class="rv-wipe dl2 s6-divider"></div>
       <div class="rv dl3 s6-row">
-        <div class="s6-label">现在</div>
+        <div class="s6-label">Now</div>
         <div class="s6-flow">
           <span class="s6-node neutral">Spec</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node ai">AI 拆解</span>
+          <span class="s6-node ai">AI Parse</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node ai">AI 设计</span>
+          <span class="s6-node ai">AI Design</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node ai">AI 写码</span>
+          <span class="s6-node ai">AI Code</span>
           <span class="s6-chevron">›</span>
-          <span class="s6-node ai">自动部署</span>
+          <span class="s6-node ai">Auto Deploy</span>
         </div>
-        <div class="s6-duration fast">1 天</div>
+        <div class="s6-duration fast">1 day</div>
       </div>
     </div>
-    <p class="rv dl5 s6-punchline">救火救着救着，发现自己在造流水线。</p>
+    <p class="rv dl5 s6-punchline">I started putting out fires. Somewhere along the way, I was building a pipeline.</p>
   </div>
 
-  <!-- 7: 角色转变 -->
+  <!-- 7: THE SHIFT -->
   <div class="slide s7" data-dark>
     <div class="s7-before">
-      <div class="rv s7-label">以前</div>
-      <div class="rv dl1 s7-role">执行者</div>
-      <p class="rv dl2 s7-desc">拿到需求，画图，交付。一个人的产能就是一个人的产能。</p>
-      <div class="rv dl3 s7-growth">线性增长</div>
+      <div class="rv s7-label">Before</div>
+      <div class="rv dl1 s7-role">Executor</div>
+      <p class="rv dl2 s7-desc">Take the brief. Draw the screens. Ship. One person's output is one person's output.</p>
+      <div class="rv dl3 s7-growth">Linear growth</div>
     </div>
     <div class="s7-after">
-      <div class="rv dl2 s7-label">现在</div>
-      <div class="rv dl3 s7-role">规则制定者</div>
-      <p class="rv dl4 s7-desc">定义 Guideline、CSS、思考框架。AI 按你的规则，批量生成。</p>
-      <div class="rv dl5 s7-growth">指数增长</div>
+      <div class="rv dl2 s7-label">Now</div>
+      <div class="rv dl3 s7-role">Rule maker</div>
+      <p class="rv dl4 s7-desc">Define the guidelines, the CSS, the thinking framework. AI generates at scale, following your rules.</p>
+      <div class="rv dl5 s7-growth">Exponential growth</div>
     </div>
   </div>
 
-  <!-- 8: 下一步 -->
+  <!-- 8: REDEFINE -->
   <div class="slide s8">
-    <h2 class="rv">下一步</h2>
+    <h2 class="rv">What's next</h2>
     <div class="s8-defs">
       <div class="rv dl1 s8-def">
         <div class="s8-term">Design Guideline</div>
-        <div class="s8-meaning">不是文档——是给 AI 的<em>指令集</em></div>
+        <div class="s8-meaning">Not a document — it's an <em>instruction set</em> for AI</div>
       </div>
       <div class="rv dl2 s8-def">
         <div class="s8-term">Global CSS</div>
-        <div class="s8-meaning">不是样式表——是视觉语言的<em>编码</em></div>
+        <div class="s8-meaning">Not a stylesheet — it's the <em>encoding</em> of visual language</div>
       </div>
       <div class="rv dl3 s8-def">
         <div class="s8-term">Skill</div>
-        <div class="s8-meaning">不是流程图——是思考方式的<em>外化</em></div>
+        <div class="s8-meaning">Not a flowchart — it's <em>externalized thinking</em></div>
       </div>
     </div>
-    <p class="rv dl4 s8-coda">我们不是在用 AI 替代设计师。<br>我们是在<em>把设计师的能力，变成可复用、可放大的资产。</em></p>
+    <p class="rv dl4 s8-coda">We're not replacing designers with AI.<br>We're turning <em>a designer's expertise into a reusable, scalable asset.</em></p>
   </div>
 
   <!-- 9: CLOSING -->
   <div class="slide s9" data-dark>
     <div class="rv s9-text">
-      从救火到造流水线<br>从解决问题到设计系统
+      From firefighting to pipeline.<br>From solving problems to designing systems.
     </div>
-    <div class="rv dl2 s9-text">
-      AI 没有替代我——
-      <span class="s9-em">它放大了我</span>
+    <div class="rv dl2 s9-text" style="margin-top: 2rem;">
+      AI didn't replace me —<br>
+      <span class="s9-em">it amplified me.</span>
     </div>
   </div>
 
