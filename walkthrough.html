@@ -6,27 +6,26 @@
 <title>打通：从救火到造流水线</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-/* ── Reset ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  /* OKLCH-inspired palette, fallback to hex */
-  --surface-0: #0c0b0e;
-  --surface-1: #13121a;
-  --surface-2: #1c1b26;
-  --text-primary: #e6e4ed;
-  --text-secondary: #8e8b9e;
-  --text-tertiary: #5c5970;
-  --accent: #6e8cfc;
-  --accent-dim: #3d4f8a;
-  --warm: #e8a87c;
-  --warm-dim: #5c3f2e;
-  --green: #7cc9a8;
-  --green-dim: #2a4a3a;
-  --red: #d47b7b;
-  --red-dim: #4a2a2a;
+  --bg: #faf9f7;
+  --ink: #1a1816;
+  --ink-2: #4a4640;
+  --ink-3: #8a8580;
+  --ink-4: #b8b4ae;
+  --surface: #f0eeeb;
+  --accent: #c4430a;
+  --accent-soft: #fff0e8;
+  --green: #1a7a5c;
+  --green-soft: #e8f5ef;
+  --blue: #2a5adc;
+
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Georgia', serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -35,304 +34,615 @@
 html, body {
   width: 100%; height: 100%;
   overflow: hidden;
-  background: var(--surface-0);
-  color: var(--text-primary);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-weight: 400;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  line-height: 1.6;
 }
 
 /* ── Deck ── */
 #deck {
   display: flex;
   height: 100%;
-  transition: transform 0.8s var(--ease-out-expo);
+  transition: transform 0.9s var(--ease-out-expo);
   will-change: transform;
 }
 
 .slide {
   min-width: 100vw;
   height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Reveal ── */
+.r {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s var(--ease-out-quart), transform 0.8s var(--ease-out-quart);
+}
+.slide.active .r { opacity: 1; transform: translateY(0); }
+.slide.active .r.d1 { transition-delay: 0.1s; }
+.slide.active .r.d2 { transition-delay: 0.2s; }
+.slide.active .r.d3 { transition-delay: 0.35s; }
+.slide.active .r.d4 { transition-delay: 0.5s; }
+.slide.active .r.d5 { transition-delay: 0.65s; }
+.slide.active .r.d6 { transition-delay: 0.8s; }
+.slide.active .r.d7 { transition-delay: 0.95s; }
+
+/* fade-in from left */
+.r-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 0.8s var(--ease-out-quart), transform 0.8s var(--ease-out-quart);
+}
+.slide.active .r-left { opacity: 1; transform: translateX(0); }
+.slide.active .r-left.d1 { transition-delay: 0.1s; }
+.slide.active .r-left.d2 { transition-delay: 0.2s; }
+.slide.active .r-left.d3 { transition-delay: 0.35s; }
+.slide.active .r-left.d4 { transition-delay: 0.5s; }
+.slide.active .r-left.d5 { transition-delay: 0.65s; }
+
+/* scale reveal */
+.r-scale {
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.7s var(--ease-out-quart), transform 0.7s var(--ease-out-quart);
+}
+.slide.active .r-scale { opacity: 1; transform: scale(1); }
+.slide.active .r-scale.d1 { transition-delay: 0.15s; }
+.slide.active .r-scale.d2 { transition-delay: 0.3s; }
+.slide.active .r-scale.d3 { transition-delay: 0.45s; }
+
+/* ── Shared ── */
+.pad-left { padding-left: 12vw; }
+.pad-right { padding-right: 12vw; }
+.flex-col-center { display: flex; flex-direction: column; justify-content: center; }
+.slide-tag {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+/* ════════════════════════════════
+   SLIDE 0 — COVER
+   ════════════════════════════════ */
+.s0 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
+}
+.s0-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 0 12vh 12vw;
+}
+.s0-title {
+  font-family: var(--font-serif);
+  font-size: clamp(5rem, 12vw, 10rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.s0-sub {
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  font-weight: 300;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+.s0-right {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 6vh 8vw 0 0;
+}
+.s0-meta {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-4);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 2;
+}
+
+/* ════════════════════════════════
+   SLIDE 1 — 堵车
+   ════════════════════════════════ */
+.s1 {
+  display: grid;
+  grid-template-columns: 45% 55%;
+  height: 100vh;
+}
+.s1-left {
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.s1-number {
+  font-family: var(--font-serif);
+  font-size: clamp(6rem, 14vw, 12rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.s1-unit {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  margin-left: 0.2em;
+}
+.s1-right {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 14vw;
-  position: relative;
+  padding: 0 8vw 0 6vw;
 }
-
-/* ── Typography ── */
-.serif { font-family: 'Noto Serif SC', 'Georgia', serif; }
-
-h1 {
-  font-family: 'Noto Serif SC', serif;
-  font-size: clamp(2.8rem, 6vw, 5rem);
-  font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
+.s1-right p {
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  line-height: 2;
+  color: var(--ink-2);
+  font-weight: 300;
+  max-width: 48ch;
 }
-
-h2 {
-  font-family: 'Noto Serif SC', serif;
-  font-size: clamp(2rem, 4vw, 3.2rem);
+.s1-right p + p { margin-top: 1.2rem; }
+.s1-right strong { color: var(--ink); font-weight: 600; }
+.s1-q {
+  margin-top: 2.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* ════════════════════════════════
+   SLIDE 2 — 绕路
+   ════════════════════════════════ */
+.s2 { display: flex; flex-direction: column; justify-content: center; }
+.s2-inner { padding: 0 12vw; }
+.s2-tag {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+.s2 h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2rem;
+  line-height: 1.3;
+}
+.s2-body {
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 2;
+  color: var(--ink-2);
+  font-weight: 300;
+  max-width: 55ch;
+}
+.s2-body + .s2-body { margin-top: 1rem; }
+.s2-result {
+  margin-top: 3rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+.s2-from {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 400;
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.s2-arrow { color: var(--ink-4); font-size: 1.5rem; }
+.s2-to {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 900;
+  color: var(--green);
+}
+
+/* ════════════════════════════════
+   SLIDE 3 — 意外发现
+   ════════════════════════════════ */
+.s3 { display: flex; flex-direction: column; justify-content: center; }
+.s3-inner { padding: 0 12vw; }
+.s3 h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.3;
   margin-bottom: 2rem;
 }
-
-.body-lg {
-  font-size: clamp(1.15rem, 2vw, 1.45rem);
-  line-height: 1.85;
-  color: var(--text-secondary);
-  max-width: 52ch;
+.s3-body {
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 2;
+  color: var(--ink-2);
   font-weight: 300;
+  max-width: 55ch;
+  margin-bottom: 2.5rem;
 }
-
-.body-lg + .body-lg { margin-top: 1.25rem; }
-
-.body-lg strong {
-  color: var(--text-primary);
+.s3-discovery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-width: 680px;
+}
+.s3-item {
+  padding: 2.5rem 2rem;
+  border-top: 2px solid var(--ink);
+}
+.s3-item:first-child { border-right: 1px solid var(--surface); }
+.s3-item h3 {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
   font-weight: 600;
-}
-
-.number-hero {
-  font-family: 'Noto Serif SC', serif;
-  font-size: clamp(4rem, 10vw, 8rem);
-  font-weight: 900;
-  line-height: 1;
-  color: var(--text-primary);
-}
-
-.label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-tertiary);
-}
-
-.caption {
-  font-size: 0.85rem;
-  color: var(--text-tertiary);
-  font-weight: 400;
-}
-
-/* ── Reveal system ── */
-.r {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s var(--ease-out-quart), transform 0.7s var(--ease-out-quart);
-}
-.slide.active .r { opacity: 1; transform: translateY(0); }
-.slide.active .r.d1 { transition-delay: 0.12s; }
-.slide.active .r.d2 { transition-delay: 0.24s; }
-.slide.active .r.d3 { transition-delay: 0.36s; }
-.slide.active .r.d4 { transition-delay: 0.48s; }
-.slide.active .r.d5 { transition-delay: 0.6s; }
-.slide.active .r.d6 { transition-delay: 0.72s; }
-.slide.active .r.d7 { transition-delay: 0.84s; }
-
-/* ── Slide number ── */
-.sn {
-  position: absolute;
-  top: 3rem;
-  left: 14vw;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  letter-spacing: 0.15em;
-}
-
-/* ── Title slide ── */
-.slide--title {
-  align-items: flex-start;
-}
-.slide--title h1 {
-  font-size: clamp(3.5rem, 8vw, 6.5rem);
-}
-.slide--title .subtitle {
-  margin-top: 1.5rem;
-  font-size: 1.1rem;
-  color: var(--text-tertiary);
-  font-weight: 300;
-  letter-spacing: 0.04em;
-}
-
-/* ── Quote slide ── */
-.quote-block {
-  position: relative;
-  padding-left: 2rem;
-  max-width: 600px;
-}
-.quote-block::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.3rem;
-  bottom: 0.3rem;
-  width: 3px;
-  background: var(--accent);
-  border-radius: 2px;
-}
-.quote-text {
-  font-family: 'Noto Serif SC', serif;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-weight: 400;
-  line-height: 1.7;
-  color: var(--text-primary);
-}
-.quote-text em {
-  font-style: normal;
   color: var(--accent);
-  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.s3-item p {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.s3-punchline {
+  margin-top: 2.5rem;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: var(--ink-3);
+  font-weight: 300;
+  font-style: italic;
 }
 
-/* ── Pipeline comparison ── */
-.pipeline-compare {
+/* ════════════════════════════════
+   SLIDE 4 — 反向
+   ════════════════════════════════ */
+.s4 {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  height: 100vh;
+}
+.s4-left {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
-  margin-top: 1.5rem;
+  justify-content: center;
+  padding: 0 4vw 0 12vw;
 }
-.pipe-row {
+.s4-left h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 2rem;
+}
+.s4-body {
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 2;
+  color: var(--ink-2);
+  font-weight: 300;
+  max-width: 48ch;
+}
+.s4-body + .s4-body { margin-top: 1rem; }
+.s4-right {
+  background: var(--ink);
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 4rem;
+}
+.s4-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+.s4-step {
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 1.3vw, 1.1rem);
+  font-weight: 500;
+  padding: 0.7rem 1.8rem;
+  border-radius: 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+.s4-step.done {
+  background: rgba(26, 122, 92, 0.2);
+  color: var(--green);
+  border: 1px solid rgba(26, 122, 92, 0.3);
+}
+.s4-step.wip {
+  background: rgba(196, 67, 10, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(196, 67, 10, 0.3);
+}
+.s4-connector {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,0.15);
+}
+
+/* ════════════════════════════════
+   SLIDE 5 — 继续推
+   ════════════════════════════════ */
+.s5 { display: flex; flex-direction: column; justify-content: center; }
+.s5-inner { padding: 0 12vw; }
+.s5 h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 2rem;
+}
+.s5-checks {
+  display: flex;
   gap: 2rem;
-}
-.pipe-label {
-  width: 48px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-.pipe-nodes {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  margin-bottom: 2.5rem;
   flex-wrap: wrap;
 }
-.pipe-node {
-  padding: 0.45rem 0.9rem;
-  border-radius: 6px;
+.s5-check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--green);
+}
+.s5-check svg { width: 20px; height: 20px; }
+.s5-body {
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 2;
+  color: var(--ink-2);
+  font-weight: 300;
+  max-width: 55ch;
+}
+.s5-body + .s5-body { margin-top: 1rem; }
+.s5-building {
+  margin-top: 1.5rem;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+}
+
+/* ════════════════════════════════
+   SLIDE 6 — 一条线 (THE CLIMAX)
+   ════════════════════════════════ */
+.s6 { display: flex; flex-direction: column; justify-content: center; }
+.s6-inner { padding: 0 8vw; }
+.s6 h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+.s6-pipe {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+.s6-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.s6-label {
+  width: 50px;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  flex-shrink: 0;
+}
+.s6-nodes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.s6-node {
+  padding: 0.55rem 1.2rem;
+  border-radius: 4px;
+  font-family: var(--font-display);
   font-size: 0.85rem;
   font-weight: 500;
   white-space: nowrap;
 }
-.pipe-node.human {
-  background: var(--red-dim);
-  color: var(--red);
+.s6-node.human {
+  background: #fce8e8;
+  color: #9a2c2c;
 }
-.pipe-node.ai {
-  background: var(--green-dim);
+.s6-node.ai {
+  background: var(--green-soft);
   color: var(--green);
 }
-.pipe-node.neutral {
-  background: var(--surface-2);
-  color: var(--text-secondary);
+.s6-node.neutral {
+  background: var(--surface);
+  color: var(--ink-3);
 }
-.pipe-arrow {
-  color: var(--text-tertiary);
-  font-size: 0.7rem;
-  opacity: 0.5;
+.s6-arr {
+  color: var(--ink-4);
+  font-size: 0.65rem;
 }
-.pipe-time {
-  margin-left: auto;
-  font-family: 'Noto Serif SC', serif;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+.s6-time {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
   flex-shrink: 0;
+  min-width: 120px;
+  text-align: right;
 }
-.pipe-time.slow { color: var(--red); }
-.pipe-time.fast { color: var(--green); }
+.s6-time.slow { color: var(--accent); }
+.s6-time.fast { color: var(--green); }
 
-/* ── Insight cards ── */
-.cards-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-top: 1.5rem;
+.s6-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--surface);
 }
-.insight-card {
-  padding: 1.75rem;
-  border-radius: 12px;
-  background: var(--surface-1);
-  border: 1px solid rgba(255,255,255,0.04);
-}
-.insight-card .ic-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 0.6rem;
-}
-.insight-card .ic-body {
-  font-size: 0.9rem;
-  line-height: 1.65;
-  color: var(--text-secondary);
-  font-weight: 300;
-}
-.insight-card .ic-body strong {
-  color: var(--text-primary);
+
+.s6-punchline {
+  margin-top: 3rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
   font-weight: 600;
+  color: var(--ink);
+  line-height: 1.5;
 }
 
-/* ── Contrast pair ── */
-.contrast-pair {
+/* ════════════════════════════════
+   SLIDE 7 — 不只是提效
+   ════════════════════════════════ */
+.s7 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  height: 100vh;
 }
-.contrast-box {
-  padding: 2rem;
-  border-radius: 12px;
-  background: var(--surface-1);
-  border: 1px solid rgba(255,255,255,0.04);
+.s7-before {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 6vw 0 12vw;
 }
-.contrast-box .cb-label {
-  font-size: 0.75rem;
+.s7-after {
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8vw 0 6vw;
+  color: #fff;
+}
+.s7-label {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-bottom: 0.75rem;
+  margin-bottom: 2rem;
 }
-.contrast-box .cb-title {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 1.4rem;
+.s7-before .s7-label { color: var(--ink-4); }
+.s7-after .s7-label { color: rgba(255,255,255,0.35); }
+.s7-role {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+.s7-before .s7-role { color: var(--ink-3); }
+.s7-after .s7-role { color: #fff; }
+.s7-desc {
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 2;
+  font-weight: 300;
+  max-width: 36ch;
+}
+.s7-before .s7-desc { color: var(--ink-3); }
+.s7-after .s7-desc { color: rgba(255,255,255,0.65); }
+
+/* ════════════════════════════════
+   SLIDE 8 — 下一步
+   ════════════════════════════════ */
+.s8 { display: flex; flex-direction: column; justify-content: center; }
+.s8-inner { padding: 0 12vw; }
+.s8 h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 3rem;
 }
-.contrast-box .cb-body {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.65;
+.s8-redefine {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 680px;
+}
+.s8-item {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 2rem;
+  padding: 1.8rem 0;
+  border-top: 1px solid var(--surface);
+  align-items: baseline;
+}
+.s8-item:last-child { border-bottom: 1px solid var(--surface); }
+.s8-term {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.s8-def {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--ink-2);
   font-weight: 300;
 }
-
-/* ── Keyword tag ── */
-.kw {
-  display: inline-block;
-  padding: 0.15rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.9em;
-  font-weight: 500;
+.s8-def strong { color: var(--ink); font-weight: 600; }
+.s8-footer {
+  margin-top: 3rem;
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 2;
+  color: var(--ink-2);
+  font-weight: 300;
+  max-width: 55ch;
 }
-.kw--accent { background: rgba(110,140,252,0.12); color: var(--accent); }
-.kw--green { background: rgba(124,201,168,0.12); color: var(--green); }
-.kw--warm { background: rgba(232,168,124,0.12); color: var(--warm); }
+.s8-footer strong { color: var(--ink); font-weight: 600; }
 
-/* ── Divider line ── */
-.divider {
-  width: 48px;
-  height: 2px;
-  background: var(--text-tertiary);
-  border-radius: 1px;
-  margin: 1.5rem 0;
-  opacity: 0.4;
+/* ════════════════════════════════
+   SLIDE 9 — CLOSING
+   ════════════════════════════════ */
+.s9 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.s9-quote {
+  max-width: 620px;
+  padding: 0 8vw;
+}
+.s9-text {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 400;
+  line-height: 1.8;
+  color: var(--ink-2);
+}
+.s9-text em {
+  font-style: normal;
+  font-weight: 900;
+  color: var(--ink);
 }
 
 /* ── Progress ── */
@@ -341,46 +651,47 @@ h2 {
   top: 0;
   left: 0;
   height: 2px;
-  background: var(--accent);
-  transition: width 0.8s var(--ease-out-expo);
+  background: var(--ink);
+  transition: width 0.9s var(--ease-out-expo);
   z-index: 100;
-  opacity: 0.7;
 }
 
-/* ── Nav ── */
-#nav {
+/* ── Page counter ── */
+#counter {
   position: fixed;
-  bottom: 2.5rem;
-  right: 3rem;
-  display: flex;
-  gap: 0.5rem;
+  bottom: 2rem;
+  left: 3rem;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--ink-4);
+  letter-spacing: 0.15em;
   z-index: 100;
+  transition: color 0.5s;
 }
-.nav-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-tertiary);
-  opacity: 0.3;
-  cursor: pointer;
-  transition: opacity 0.3s, transform 0.3s var(--ease-out-quart);
-}
-.nav-dot.active {
-  opacity: 1;
-  background: var(--accent);
-  transform: scale(1.4);
-}
+#counter.invert { color: rgba(255,255,255,0.3); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .slide { padding: 0 8vw; }
-  .sn { left: 8vw; }
-  .contrast-pair { grid-template-columns: 1fr; }
-  #nav { bottom: 1.5rem; right: 1.5rem; }
+  .s0 { grid-template-columns: 1fr; }
+  .s0-right { display: none; }
+  .s0-left { padding: 0 8vw 15vh; }
+  .s1 { grid-template-columns: 1fr; grid-template-rows: 35vh 1fr; }
+  .s1-right { padding: 6vw 8vw; }
+  .s4 { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  .s4-right { padding: 2rem; }
+  .s7 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .s3-discovery { grid-template-columns: 1fr; }
+  .s3-item:first-child { border-right: none; }
+  .s6-row { flex-wrap: wrap; }
+  .s6-time { min-width: auto; text-align: left; }
+  .pad-left { padding-left: 8vw; }
+  .pad-right { padding-right: 8vw; }
+  .s8-item { grid-template-columns: 1fr; gap: 0.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .r { transition: none; opacity: 1; transform: none; }
+  .r, .r-left, .r-scale { transition: none; opacity: 1; transform: none; }
   #deck { transition: none; }
 }
 </style>
@@ -389,172 +700,188 @@ h2 {
 
 <div id="deck">
 
-  <!-- 0: Cover -->
-  <div class="slide slide--title">
-    <span class="sn">JOE RONG · 2026</span>
-    <h1 class="r">打通</h1>
-    <p class="r d1 subtitle serif" style="font-size: 1.4rem; color: var(--text-tertiary);">从救火到造流水线</p>
+  <!-- 0: COVER -->
+  <div class="slide s0">
+    <div class="s0-left">
+      <div class="r s0-title">打通</div>
+      <div class="r d2 s0-sub">从救火到造流水线</div>
+    </div>
+    <div class="s0-right">
+      <div class="r d3 s0-meta">Joe Rong<br>2026</div>
+    </div>
   </div>
 
   <!-- 1: 堵车 -->
-  <div class="slide">
-    <span class="sn">01</span>
-    <div class="r number-hero" style="color: var(--red);">两周。</div>
-    <div class="divider r d1"></div>
-    <p class="r d2 body-lg">一个设计需求从读 Spec 到可测试的 Demo，至少两周。</p>
-    <p class="r d3 body-lg">不是因为需求复杂——是因为<strong>每个环节都在排队。</strong></p>
-    <p class="r d4 body-lg">设计等前端，前端等排期，排期等资源。<br>设计稿做完了，躺在那儿，没人能验证。</p>
-    <p class="r d5 body-lg" style="margin-top: 2rem; color: var(--text-primary); font-weight: 500; font-size: clamp(1.3rem, 2.2vw, 1.7rem);">瓶颈到底在哪？</p>
+  <div class="slide s1" data-invert>
+    <div class="s1-left">
+      <div class="r-scale">
+        <span class="s1-number">2</span><span class="s1-unit">周</span>
+      </div>
+    </div>
+    <div class="s1-right">
+      <p class="r d1">一个设计需求从读 Spec 到可测试的 Demo，至少两周。</p>
+      <p class="r d2">不是因为需求复杂——<br>是因为<strong>每个环节都在排队。</strong></p>
+      <p class="r d3">设计等前端，前端等排期，排期等资源。<br>设计稿做完了，躺在那儿，没人能验证。</p>
+      <div class="r d4 s1-q">瓶颈到底在哪？</div>
+    </div>
   </div>
 
   <!-- 2: 绕路 -->
-  <div class="slide">
-    <span class="sn">02</span>
-    <h2 class="r" style="color: var(--warm);">绕路</h2>
-    <p class="r d1 body-lg">瓶颈在 <strong>Demo</strong>。必须等前端手写代码，大家才能看到效果。<br>这个环节吃人力、吃时间——而产出只是验证用。</p>
-    <p class="r d2 body-lg" style="margin-top: 1.5rem; color: var(--text-primary); font-weight: 500;">那能不能跳过它？</p>
-    <p class="r d3 body-lg">我和后端一起做了 <span class="kw kw--accent">Figma-to-Code 平台</span>。<br>设计师上传文件，平台自动读取、渲染、部署。<br>配合 Data Schema，灌入真实数据。</p>
-    <div class="divider r d4"></div>
-    <p class="r d5 body-lg" style="color: var(--green); font-weight: 600; font-size: clamp(1.4rem, 2.5vw, 1.8rem);">从两周，变成当天。</p>
-    <p class="r d6 caption">这个平台现在整个产品团队都在用。</p>
+  <div class="slide s2">
+    <div class="s2-inner">
+      <div class="r s2-tag">02 · 绕路</div>
+      <h2 class="r d1">瓶颈在 Demo</h2>
+      <p class="r d2 s2-body">必须等前端手写代码、部署环境，大家才能看到效果。这个环节吃人力、吃时间——而产出只是验证用，不是最终上线的代码。</p>
+      <p class="r d3 s2-body">我和后端一起做了 Figma-to-Code 平台。设计师上传文件，平台自动读取、渲染、部署到局域网。配合 Data Schema，灌入真实数据。</p>
+      <div class="r d4 s2-result">
+        <span class="s2-from">两周</span>
+        <span class="s2-arrow">→</span>
+        <span class="s2-to">当天</span>
+      </div>
+    </div>
   </div>
 
   <!-- 3: 意外发现 -->
-  <div class="slide">
-    <span class="sn">03</span>
-    <h2 class="r">意外发现</h2>
-    <p class="r d1 body-lg">Figma Make 有时还原度很高，有时一塌糊涂。<br>我们反复调参，想找到那个"稳定输出"的开关。</p>
-    <div class="r d2 cards-row">
-      <div class="insight-card">
-        <div class="ic-title">Design Guideline</div>
-        <div class="ic-body">设计规范越精确<br>AI 输出越稳定</div>
+  <div class="slide s3">
+    <div class="s3-inner">
+      <h2 class="r">意外发现</h2>
+      <p class="r d1 s3-body">Figma Make 有时还原度很高，有时一塌糊涂。我们反复测试，想找到"稳定输出"的开关。</p>
+      <div class="s3-discovery">
+        <div class="r d2 s3-item">
+          <h3>Design Guideline</h3>
+          <p>规范越精确，<br>AI 输出越稳定</p>
+        </div>
+        <div class="r d3 s3-item">
+          <h3>Global CSS</h3>
+          <p>样式越完整，<br>还原度越高</p>
+        </div>
       </div>
-      <div class="insight-card">
-        <div class="ic-title" style="color: var(--green);">Global CSS</div>
-        <div class="ic-body">样式定义越完整<br>还原度越高</div>
-      </div>
+      <p class="r d4 s3-punchline">不是运气——是喂给它的规则够清晰。</p>
     </div>
-    <div class="divider r d3"></div>
-    <p class="r d4 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.2rem, 2vw, 1.5rem);">不是运气——是喂给它的<strong>规则</strong>够清晰。</p>
   </div>
 
   <!-- 4: 反向 -->
-  <div class="slide">
-    <span class="sn">04</span>
-    <h2 class="r" style="color: var(--accent);">反向</h2>
-    <p class="r d1 body-lg">Guideline + CSS 保证了 <strong>Design → Code</strong> 的质量。</p>
-    <p class="r d2 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.3rem, 2.2vw, 1.7rem); margin-top: 1rem;">那能不能反过来？用 AI 生成设计？</p>
-    <p class="r d3 body-lg" style="margin-top: 1rem;">我整理了 News Team 过去上百个设计文件，<br>提炼出专属 News 的视觉语言。</p>
-    <p class="r d4 body-lg">然后实验：设计师不画图，只写 Prompt。<br><span class="kw kw--warm">Magazine Timeline</span>&ensp;<span class="kw kw--warm">Digest Card</span></p>
-    <div class="divider r d5"></div>
-    <p class="r d6 body-lg" style="color: var(--accent); font-weight: 700; font-size: clamp(1.3rem, 2.2vw, 1.7rem);">Prompt → Design，跑通了。</p>
+  <div class="slide s4">
+    <div class="s4-left">
+      <div class="r slide-tag" style="margin-bottom:1.5rem; color:var(--accent);">04 · 反向</div>
+      <h2 class="r d1 s4-left" style="padding:0;">能不能反过来？<br>用 AI 生成设计？</h2>
+      <p class="r d2 s4-body">我整理了 News Team 过去上百个设计文件，提炼出专属 News 的视觉语言。</p>
+      <p class="r d3 s4-body">然后实验：设计师不画图，只写 Prompt。<br>Magazine Timeline，Digest Card。</p>
+      <p class="r d4 s4-body" style="color:var(--green); font-weight:600; font-size:1.3rem; margin-top:1.5rem;">Prompt → Design，跑通了。</p>
+    </div>
+    <div class="s4-right">
+      <div class="s4-chain">
+        <div class="r d2 s4-step done">Design → Code ✓</div>
+        <div class="r d3 s4-connector"></div>
+        <div class="r d3 s4-step done">Prompt → Design ✓</div>
+        <div class="r d4 s4-connector"></div>
+        <div class="r d4 s4-step wip">Spec → Prompt</div>
+      </div>
+    </div>
   </div>
 
   <!-- 5: 继续推 -->
-  <div class="slide">
-    <span class="sn">05</span>
-    <h2 class="r">继续推</h2>
-    <p class="r d1 body-lg">
-      <span class="kw kw--green">Design → Code</span> ✓&emsp;
-      <span class="kw kw--accent">Prompt → Design</span> ✓
-    </p>
-    <p class="r d2 body-lg" style="margin-top: 1.5rem;">链路还剩一个断点：<strong>Spec → Prompt</strong></p>
-    <p class="r d3 body-lg">设计师看 Spec 时在想什么？<br>哪些信息关键？哪些约束影响方向？</p>
-    <p class="r d4 body-lg" style="margin-top: 1rem;">我把这个思考过程拆解成 <span class="kw kw--warm">Skill</span>——<br>AI 按设计师的思维模式提问、拆解，输出高质量 Prompt。</p>
-    <p class="r d5 caption" style="margin-top: 1rem;">这部分还在 building，但逻辑已经跑通。</p>
+  <div class="slide s5">
+    <div class="s5-inner">
+      <h2 class="r">继续推</h2>
+      <div class="r d1 s5-checks">
+        <span class="s5-check"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Design → Code</span>
+        <span class="s5-check"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg> Prompt → Design</span>
+      </div>
+      <p class="r d2 s5-body">链路还剩一个断点：<strong>Spec → Prompt</strong></p>
+      <p class="r d3 s5-body">设计师看 Spec 时在想什么？哪些信息是关键？哪些约束会影响方向？</p>
+      <p class="r d4 s5-body">我把这个思考过程拆解成一个 Skill——AI 按设计师的思维模式提问、拆解，最后输出高质量 Prompt。</p>
+      <div class="r d5 s5-building">Building</div>
+    </div>
   </div>
 
   <!-- 6: 一条线 -->
-  <div class="slide">
-    <span class="sn">06</span>
-    <h2 class="r">一条线</h2>
-    <div class="r d1 pipeline-compare">
-      <div class="pipe-row">
-        <div class="pipe-label">以前</div>
-        <div class="pipe-nodes">
-          <span class="pipe-node human">Spec</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node human">人读</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node human">人想</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node human">人设计</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node human">人写代码</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node human">Deploy</span>
+  <div class="slide s6">
+    <div class="s6-inner">
+      <h2 class="r">一条线</h2>
+      <div class="s6-pipe">
+        <div class="r d1 s6-row">
+          <div class="s6-label">以前</div>
+          <div class="s6-nodes">
+            <span class="s6-node human">Spec</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node human">人读</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node human">人想</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node human">人设计</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node human">人写代码</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node human">Deploy</span>
+          </div>
+          <div class="s6-time slow">2 周</div>
         </div>
-        <div class="pipe-time slow">2 周</div>
-      </div>
-      <div class="pipe-row r d3">
-        <div class="pipe-label">现在</div>
-        <div class="pipe-nodes">
-          <span class="pipe-node neutral">Spec</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node ai">AI 拆解</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node ai">AI 设计</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node ai">AI 写码</span>
-          <span class="pipe-arrow">→</span>
-          <span class="pipe-node ai">自动部署</span>
+        <div class="r d2 s6-divider"></div>
+        <div class="r d3 s6-row">
+          <div class="s6-label">现在</div>
+          <div class="s6-nodes">
+            <span class="s6-node neutral">Spec</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node ai">AI 拆解</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node ai">AI 设计</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node ai">AI 写码</span>
+            <span class="s6-arr">→</span>
+            <span class="s6-node ai">自动部署</span>
+          </div>
+          <div class="s6-time fast">1 天</div>
         </div>
-        <div class="pipe-time fast">1 天</div>
       </div>
+      <p class="r d5 s6-punchline">救火救着救着，发现自己在造流水线。</p>
     </div>
-    <div class="divider r d5"></div>
-    <p class="r d6 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.2rem, 2vw, 1.45rem);">救火救着救着，发现自己在造流水线。</p>
   </div>
 
   <!-- 7: 不只是提效 -->
-  <div class="slide">
-    <span class="sn">07</span>
-    <h2 class="r">不只是提效</h2>
-    <div class="r d1 contrast-pair">
-      <div class="contrast-box">
-        <div class="cb-label" style="color: var(--red);">以前</div>
-        <div class="cb-title" style="color: var(--red);">执行者</div>
-        <div class="cb-body">拿到需求，画图，交付。<br>一个人的产能 = 一个人的产能。<br>线性增长。</div>
-      </div>
-      <div class="contrast-box">
-        <div class="cb-label" style="color: var(--green);">现在</div>
-        <div class="cb-title" style="color: var(--green);">规则制定者</div>
-        <div class="cb-body">定义 Guideline、CSS、思考框架。<br>AI 按你的规则，批量生成。<br>指数增长。</div>
-      </div>
+  <div class="slide s7" data-invert>
+    <div class="s7-before">
+      <div class="r s7-label">以前</div>
+      <div class="r d1 s7-role">执行者</div>
+      <p class="r d2 s7-desc">拿到需求，画图，交付。<br>一个人的产能就是一个人的产能。<br>线性增长。</p>
     </div>
-    <div class="divider r d3"></div>
-    <p class="r d4 body-lg" style="color: var(--text-primary); font-weight: 500; font-size: clamp(1.2rem, 2vw, 1.5rem);">你的产能不再是你画了多少图，<br>而是你建立的系统能生成多少图。</p>
+    <div class="s7-after">
+      <div class="r d1 s7-label">现在</div>
+      <div class="r d2 s7-role">规则制定者</div>
+      <p class="r d3 s7-desc">定义 Guideline、CSS、思考框架。<br>AI 按你的规则，批量生成。<br>指数增长。</p>
+    </div>
   </div>
 
   <!-- 8: 下一步 -->
-  <div class="slide">
-    <span class="sn">08</span>
-    <h2 class="r">下一步</h2>
-    <div class="r d1 cards-row" style="grid-template-columns: repeat(3, 1fr);">
-      <div class="insight-card">
-        <div class="ic-title">Design Guideline</div>
-        <div class="ic-body">不是文档——<br>是给 AI 的<strong>指令集</strong></div>
+  <div class="slide s8">
+    <div class="s8-inner">
+      <h2 class="r">下一步</h2>
+      <div class="s8-redefine">
+        <div class="r d1 s8-item">
+          <div class="s8-term">Design Guideline</div>
+          <div class="s8-def">不是文档——是给 AI 的<strong>指令集</strong></div>
+        </div>
+        <div class="r d2 s8-item">
+          <div class="s8-term">Global CSS</div>
+          <div class="s8-def">不是样式表——是视觉语言的<strong>编码</strong></div>
+        </div>
+        <div class="r d3 s8-item">
+          <div class="s8-term">Skill</div>
+          <div class="s8-def">不是流程图——是思考方式的<strong>外化</strong></div>
+        </div>
       </div>
-      <div class="insight-card">
-        <div class="ic-title" style="color: var(--green);">Global CSS</div>
-        <div class="ic-body">不是样式表——<br>是视觉语言的<strong>编码</strong></div>
-      </div>
-      <div class="insight-card">
-        <div class="ic-title" style="color: var(--warm);">Skill</div>
-        <div class="ic-body">不是流程图——<br>是思考方式的<strong>外化</strong></div>
-      </div>
+      <p class="r d4 s8-footer">我们不是在用 AI 替代设计师。<br>我们是在<strong>把设计师的能力，变成可复用、可放大的资产。</strong></p>
     </div>
-    <div class="divider r d3"></div>
-    <p class="r d4 body-lg">我们不是在用 AI 替代设计师。<br>我们是在<strong>把设计师的能力，变成可复用、可放大的资产。</strong></p>
   </div>
 
-  <!-- 9: End -->
-  <div class="slide">
-    <span class="sn">09</span>
-    <div class="r quote-block">
-      <p class="quote-text">
+  <!-- 9: CLOSING -->
+  <div class="slide s9">
+    <div class="s9-quote">
+      <p class="r s9-text">
         从救火到造流水线，<br>
-        从解决问题到设计系统。<br><br>
+        从解决问题到设计系统。
+      </p>
+      <p class="r d2 s9-text" style="margin-top: 2rem;">
         AI 没有替代我——<br>
         <em>它放大了我。</em>
       </p>
@@ -564,34 +891,28 @@ h2 {
 </div>
 
 <div id="progress"></div>
-<div id="nav"></div>
+<div id="counter">01 / 10</div>
 
 <script>
 const slides = document.querySelectorAll('.slide');
 const deck = document.getElementById('deck');
 const progress = document.getElementById('progress');
-const nav = document.getElementById('nav');
+const counter = document.getElementById('counter');
 const total = slides.length;
 let current = 0;
-
-// Build nav dots
-slides.forEach((_, i) => {
-  const dot = document.createElement('div');
-  dot.className = 'nav-dot';
-  dot.addEventListener('click', () => go(i));
-  nav.appendChild(dot);
-});
-const dots = document.querySelectorAll('.nav-dot');
 
 function go(n) {
   current = Math.max(0, Math.min(n, total - 1));
   deck.style.transform = `translateX(-${current * 100}vw)`;
   slides.forEach((s, i) => s.classList.toggle('active', i === current));
-  dots.forEach((d, i) => d.classList.toggle('active', i === current));
   progress.style.width = `${((current + 1) / total) * 100}%`;
+  counter.textContent = `${String(current + 1).padStart(2, '0')} / ${total}`;
+  
+  // Invert counter for dark slides
+  const dark = slides[current].hasAttribute('data-invert');
+  counter.classList.toggle('invert', dark);
 }
 
-// Keyboard
 document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'PageDown') {
     e.preventDefault(); go(current + 1);
@@ -601,7 +922,6 @@ document.addEventListener('keydown', (e) => {
   else if (e.key === 'End') { go(total - 1); }
 });
 
-// Touch
 let tx = 0;
 document.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; }, { passive: true });
 document.addEventListener('touchend', (e) => {
@@ -609,7 +929,6 @@ document.addEventListener('touchend', (e) => {
   if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
 });
 
-// Wheel (debounced)
 let wc = false;
 document.addEventListener('wheel', (e) => {
   if (wc) return;
