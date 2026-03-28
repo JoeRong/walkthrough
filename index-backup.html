@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>AI Daily | 2026-03-28</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+      background: #050510;
+      color: #fff;
+    }
+
+    #pixelblast {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+    #pixelblast canvas { width: 100%; height: 100%; display: block; }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100vh; height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    .header { text-align: left; padding: 12px 20px; flex-shrink: 0; position: relative; }
+    .header h1 { font-size: 1rem; font-weight: 600; color: #fff; }
+    .header .date { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+    .cards-wrapper { 
+      flex: 1; position: relative; overflow: hidden; 
+      perspective: 1000px;
+    }
+    .cards-track {
+      display: flex; height: 100%; align-items: center;
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .cards-track.dragging { transition: none; }
+
+    .card {
+      flex-shrink: 0;
+      width: calc(100vw - 48px); max-width: 340px;
+      height: calc(100% - 40px); max-height: 520px;
+      margin: 0 8px;
+      position: relative;
+      border-radius: 24px;
+      display: flex; flex-direction: column;
+      overflow: visible;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+      transform: scale(0.8);
+      opacity: 0.4;
+      will-change: transform, opacity;
+      perspective: 1000px;
+    }
+    .card.active { transform: scale(1); opacity: 1; }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
+    
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+    }
+    
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 24px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: linear-gradient(180deg, rgb(45, 45, 50) 0%, rgb(20, 20, 22) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-top: none;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .card-front { transform: rotateY(0deg); }
+    .card-back {
+      transform: rotateY(180deg);
+      justify-content: flex-start;
+      align-items: flex-start;
+      text-align: left;
+    }
+    
+    .card-back .tweet-header { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .card-back .tweet-name { font-size: 0.9rem; font-weight: 600; color: #fff; }
+    .card-back .tweet-handle { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+    .card-back .tweet-time { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+    .card-back .original-text {
+      font-size: 0.9rem; line-height: 1.7; color: rgba(255,255,255,0.85);
+      max-height: calc(100% - 80px); overflow-y: auto; text-align: left; white-space: pre-wrap;
+    }
+    .card-back .tap-hint { position: absolute; bottom: 24px; font-size: 0.7rem; color: rgba(255,255,255,0.3); }
+    
+    .card-intro .card-inner { pointer-events: none; }
+    .card-intro.flipped .card-inner { transform: none; }
+
+    .card-hot .card-front, .card-hot .card-back { background: linear-gradient(180deg, rgb(50, 40, 42) 0%, rgb(22, 18, 18) 100%); }
+    .card-model .card-front, .card-model .card-back { background: linear-gradient(180deg, rgb(48, 42, 55) 0%, rgb(18, 16, 22) 100%); }
+    .card-product .card-front, .card-product .card-back { background: linear-gradient(180deg, rgb(42, 45, 55) 0%, rgb(16, 18, 22) 100%); }
+    .card-agent .card-front, .card-agent .card-back { background: linear-gradient(180deg, rgb(40, 50, 48) 0%, rgb(16, 20, 18) 100%); }
+    .card-insight .card-front, .card-insight .card-back { background: linear-gradient(180deg, rgb(50, 42, 48) 0%, rgb(20, 16, 18) 100%); }
+    .card-business .card-front, .card-business .card-back { background: linear-gradient(180deg, rgb(50, 48, 42) 0%, rgb(20, 18, 16) 100%); }
+    .card-resource .card-front, .card-resource .card-back { background: linear-gradient(180deg, rgb(42, 50, 45) 0%, rgb(16, 20, 18) 100%); }
+    .card-robot .card-front, .card-robot .card-back { background: linear-gradient(180deg, rgb(42, 48, 55) 0%, rgb(16, 18, 22) 100%); }
+    .card-policy .card-front, .card-policy .card-back { background: linear-gradient(180deg, rgb(55, 42, 42) 0%, rgb(22, 16, 16) 100%); }
+
+    .card-front::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: radial-gradient(ellipse 120px 1px at var(--highlight-x, 50%) 0%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 40%, transparent 100%);
+      pointer-events: none; z-index: 2; border-radius: 24px 24px 0 0;
+    }
+    .card-front::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 60px;
+      background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(255,255,255,0.04) 0%, transparent 100%);
+      pointer-events: none; z-index: 1;
+    }
+    .card-back::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+      pointer-events: none; z-index: 2; border-radius: 24px 24px 0 0;
+    }
+
+    .card-intro { justify-content: center; align-items: center; text-align: center; }
+    .card-intro .logo { font-size: 3rem; margin-bottom: 12px; position: relative; z-index: 1; }
+    .card-intro h2 { font-size: 1.5rem; margin-bottom: 6px; position: relative; z-index: 1; }
+    .card-intro .tagline { color: rgba(255,255,255,0.5); font-size: 0.85rem; position: relative; z-index: 1; }
+    .card-intro .summary {
+      margin-top: 24px; padding: 0;
+      text-align: left; font-size: 0.85rem;
+      color: rgba(255,255,255,0.5); line-height: 2;
+      position: relative; z-index: 1;
+    }
+    .card-intro .hint { margin-top: 24px; font-size: 0.7rem; color: rgba(255,255,255,0.3); position: relative; z-index: 1; }
+
+    .hot-badge { display: inline; color: #ff6b6b; font-size: 0.85rem; font-weight: 500; margin-left: 6px; }
+    .category-label {
+      position: absolute; bottom: 24px; right: 24px;
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.02em;
+      color: rgba(255,255,255,0.35); z-index: 1;
+    }
+
+    .card-title { 
+      font-family: 'Georgia', 'Times New Roman', 'Noto Serif SC', serif;
+      font-size: 1.35rem; font-weight: 600; line-height: 1.4; 
+      margin-bottom: 16px; color: #fff; flex-shrink: 0; 
+      position: relative; z-index: 1; letter-spacing: 0;
+    }
+    .card-content { 
+      font-size: 0.9rem; line-height: 1.8; 
+      color: rgba(255,255,255,0.6); 
+      flex-grow: 1; overflow-y: auto; 
+      position: relative; z-index: 1; padding-bottom: 40px;
+    }
+    .card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; flex-shrink: 0; position: relative; z-index: 1; }
+    .source-tag { font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+    .source-tag::before { content: '@'; }
+
+    .progress-bar { padding: 20px 32px; flex-shrink: 0; }
+    .progress-track { height: 2px; background: rgba(255, 255, 255, 0.1); border-radius: 1px; overflow: hidden; }
+    .progress-fill { height: 100%; background: rgba(255, 255, 255, 0.4); border-radius: 1px; transition: width 0.3s ease; }
+    .progress-text { text-align: center; margin-top: 10px; font-size: 0.7rem; color: rgba(255,255,255,0.25); }
+
+    .lang-toggle {
+      position: absolute; top: 12px; right: 16px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.75rem; font-weight: 600;
+      color: rgba(255,255,255,0.6); transition: all 0.2s ease; z-index: 10;
+    }
+    .lang-toggle:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .lang-toggle:active { transform: scale(0.95); }
+  </style>
+</head>
+<body>
+  <div id="pixelblast"></div>
+
+  <div class="app">
+    <header class="header">
+      <button class="lang-toggle" id="langToggle" title="Switch language">EN</button>
+      <h1 data-en="AI Daily" data-zh="AI 日报">AI Daily</h1>
+      <p class="date" data-en="March 28, 2026 · Sat" data-zh="2026年3月28日 · 周六">March 28, 2026 · Sat</p>
+    </header>
+
+    <div class="cards-wrapper" id="wrapper">
+      <div class="cards-track" id="track">
+
+        <article class="card card-intro active" data-index="0">
+          <div class="logo">✦</div>
+          <h2 data-en="Today's Highlights" data-zh="今日焦点">Today's Highlights</h2>
+          <p class="tagline" data-en="10 AI Stories" data-zh="10 条 AI 资讯">10 AI Stories</p>
+          <div class="summary" data-en="Claude Mythos leaked — cyber risk fears<br>Codex gets plugins: Slack, Figma, Notion<br>Gemini 3.1 Flash Live voice model<br>ARC-AGI-3 exposes AI reasoning gap" data-zh="Claude Mythos泄露引发安全恐慌<br>Codex上线插件：Slack、Figma、Notion<br>Gemini 3.1 Flash Live语音模型发布<br>ARC-AGI-3暴露AI推理差距">Claude Mythos leaked — cyber risk fears<br>Codex gets plugins: Slack, Figma, Notion<br>Gemini 3.1 Flash Live voice model<br>ARC-AGI-3 exposes AI reasoning gap</div>
+          <div class="hint" data-en="Swipe to explore" data-zh="滑动浏览">Swipe to explore</div>
+        </article>
+
+        <!-- 1. Claude Mythos Leak -->
+        <article class="card card-hot" data-index="1">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Claude Mythos Leaked<br>Cyber Risks Revealed<span class='hot-badge'>HOT</span>" data-zh="Claude Mythos泄露<br>暴露网安风险<span class='hot-badge'>HOT</span>">Claude Mythos Leaked<br>Cyber Risks Revealed<span class="hot-badge">HOT</span></h2>
+              <p class="card-content" data-en="Anthropic internal docs leaked, revealing 'Claude Mythos' — a 'step change' in AI capability.<br><br>The model can identify and exploit software vulnerabilities. Chinese state hackers already attempted to weaponize Claude.<br><br>Sent shockwaves through tech and crypto markets." data-zh="Anthropic内部文件泄露，揭示代号「Claude Mythos」的新模型，能力有「阶跃式提升」。<br><br>该模型可识别并利用软件漏洞，中国国家级黑客组织已尝试利用Claude发起攻击。<br><br>消息引发科技股和加密市场剧烈波动。">Claude Mythos Leaked</p>
+              <div class="card-meta"><span class="source-tag">anthropic</span><span class="source-tag">fortune</span></div>
+              <div class="category-label" data-en="Security" data-zh="安全">Security</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">Fortune</span>
+                <span class="tweet-handle">@FortuneMagazine</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">Exclusive: Anthropic 'Mythos' AI model representing 'step change' in power revealed in data leak. The company has reported that hacking groups, including those linked to the Chinese government, have attempted to exploit Claude in real-world cyberattacks.</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. Codex Plugins -->
+        <article class="card card-product" data-index="2">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Codex Gets Plugins:<br>Slack, Figma, Notion<span class='hot-badge'>HOT</span>" data-zh="Codex上线插件：<br>Slack、Figma、Notion<span class='hot-badge'>HOT</span>">Codex Gets Plugins<span class="hot-badge">HOT</span></h2>
+              <p class="card-content" data-en="OpenAI rolling out plugins in Codex — works out of the box with Slack, Figma, Notion, Gmail, and more.<br><br>Greg Brockman: 'Plugins are now available in Codex.'<br><br>Marks Codex's evolution from code assistant to full-stack agent. 1M+ views." data-zh="OpenAI为Codex上线插件系统，开箱即用对接Slack、Figma、Notion、Gmail等工具。<br><br>Greg Brockman宣布：「Codex现在支持插件了。」<br><br>标志着Codex从代码助手向全栈Agent的重大演进。浏览量超100万。">Codex Gets Plugins</p>
+              <div class="card-meta"><span class="source-tag">gdb</span><span class="source-tag">OpenAIDevs</span></div>
+              <div class="category-label" data-en="Product" data-zh="产品">Product</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">OpenAI Developers</span>
+                <span class="tweet-handle">@OpenAIDevs</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">We're rolling out plugins in Codex. Codex now works seamlessly out of the box with the most important tools builders already use, like @SlackHQ, @Figma, @NotionHQ, @gmail, and more.</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3. Gemini 3.1 Flash Live -->
+        <article class="card card-model" data-index="3">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Gemini 3.1 Flash Live<br>Voice-First Agents" data-zh="Gemini 3.1 Flash Live<br>语音优先Agent">Gemini 3.1 Flash Live<br>Voice-First Agents</h2>
+              <p class="card-content" data-en="Google's highest quality audio model yet — lower latency, better function calling, more natural interactions.<br><br>Demis Hassabis: 'A big leap towards next-gen voice-first agents.'<br><br>Available in GeminiApp and Google AI Studio. 227K views." data-zh="Google迄今最高质量的音频模型——延迟更低、function calling更强、交互更自然。<br><br>Hassabis：「构建下一代语音优先Agent的重要一步。」<br><br>已在GeminiApp和AI Studio中可用。22.7万浏览。">Gemini 3.1 Flash Live</p>
+              <div class="card-meta"><span class="source-tag">demishassabis</span><span class="source-tag">GoogleDeepMind</span></div>
+              <div class="category-label" data-en="Model" data-zh="模型">Model</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">Demis Hassabis</span>
+                <span class="tweet-handle">@demishassabis</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">Gemini 3.1 Flash Live is our highest quality audio & voice model yet - and a big leap towards building next-gen voice-first agents. Lower latency, better precision, more natural interactions... try it now with Gemini Live in the @GeminiApp or build with it in @GoogleAIStudio!</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 4. ARC-AGI-3 -->
+        <article class="card card-insight" data-index="4">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="ARC-AGI-3 Exposes<br>AI Reasoning Gap" data-zh="ARC-AGI-3暴露<br>AI推理巨大差距">ARC-AGI-3 Exposes<br>AI Reasoning Gap</h2>
+              <p class="card-content" data-en="François Chollet releases ARC-AGI-3 — micro-worlds that require observe, theorize, test, iterate.<br><br>'Virtually every human job has a higher bar. These are not high expectations for systems claiming to do everything humans can.'<br><br>64K views." data-zh="Chollet发布ARC-AGI-3评测，模拟科学方法的微缩世界。<br><br>「几乎地球上每份人类工作都有更高的门槛。对于声称能做人类一切事情的系统来说，这并不算高要求。」<br><br>6.4万浏览。">ARC-AGI-3 Exposes Gap</p>
+              <div class="card-meta"><span class="source-tag">fchollet</span></div>
+              <div class="category-label" data-en="Research" data-zh="研究">Research</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">François Chollet</span>
+                <span class="tweet-handle">@fchollet</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">Many people expect that current AI is ready to cure cancer and do breakthrough new science. ARC-AGI-3 envs are like a microcosm of the scientific method: you must observe a tiny world, form a theory of how it works, test it, iterate until correct.</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 5. Chroma Context-1 -->
+        <article class="card card-agent" data-index="5">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Chroma Context-1:<br>20B Search Agent" data-zh="Chroma Context-1：<br>20B搜索Agent">Chroma Context-1:<br>20B Search Agent</h2>
+              <p class="card-content" data-en="Chroma releases Context-1, a 20B parameter search agent. Pushes the pareto frontier — 10x faster, 10x cheaper.<br><br>Apache 2.0, open-source. Weights on HuggingFace.<br><br>36K views." data-zh="Chroma发布Context-1，20B参数搜索Agent。推动帕累托前沿——速度和成本均提升一个数量级。<br><br>Apache 2.0开源，权重已上线HuggingFace。<br><br>3.6万浏览。">Chroma Context-1</p>
+              <div class="card-meta"><span class="source-tag">trychroma</span><span class="source-tag">huggingface</span></div>
+              <div class="category-label" data-en="Agent" data-zh="Agent">Agent</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">Chroma</span>
+                <span class="tweet-handle">@trychroma</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">Introducing Chroma Context-1, a 20B parameter search agent. Pushes the pareto frontier of agentic search. Order of magnitude faster. Order of magnitude cheaper. Apache 2.0, open-source.</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6. Luma Uni-1 Manga -->
+        <article class="card card-model" data-index="6">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Luma Uni-1:<br>Text-to-Manga Agent" data-zh="Luma Uni-1：<br>文字转漫画Agent">Luma Uni-1:<br>Text-to-Manga Agent</h2>
+              <p class="card-content" data-en="Justine Moore demos Luma's Uni-1 — reads your X profile, writes a story, builds character sheets, renders panels, self-corrects style.<br><br>'Text-to-manga is here.' A full agentic creative pipeline.<br><br>22K views." data-zh="Justine Moore展示Luma的Uni-1——读取X个人资料，写故事、建角色表、渲染分镜、自我修正画风。<br><br>「文字转漫画来了。」一个完整的Agent驱动创意流水线。<br><br>2.2万浏览。">Luma Uni-1 Manga</p>
+              <div class="card-meta"><span class="source-tag">venturetwins</span><span class="source-tag">LumaLabsAI</span></div>
+              <div class="category-label" data-en="Creative" data-zh="创意">Creative</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">Justine Moore</span>
+                <span class="tweet-handle">@venturetwins</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">Text-to-manga is here ✨ I asked the new Uni-1 from @LumaLabsAI to read my X profile and make a manga about my life. It wrote a story, constructed character sheets, rendered panels, and checked its work.</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 7. Cohere Transcribe -->
+        <article class="card card-resource" data-index="7">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Cohere Transcribe:<br>Actually Open Source" data-zh="Cohere Transcribe：<br>真正的开源">Cohere Transcribe:<br>Actually Open Source</h2>
+              <p class="card-content" data-en="Cohere releases Transcribe — state-of-the-art speech recognition, Apache 2.0 license.<br><br>'No restricted license. No research only. Actually open. Respect.'<br><br>Is this a one-off or a direction change? 44K views." data-zh="Cohere发布语音识别模型Transcribe，Apache 2.0许可。<br><br>「没有限制条款，不是仅供研究。终于是真正的开源。」<br><br>这是一次性的还是战略转向？4.4万浏览。">Cohere Transcribe: Open</p>
+              <div class="card-meta"><span class="source-tag">MaziyarPanahi</span><span class="source-tag">cohere</span></div>
+              <div class="category-label" data-en="Open Source" data-zh="开源">Open Source</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">Maziyar PANAHI</span>
+                <span class="tweet-handle">@MaziyarPanahi</span>
+                <span class="tweet-time">· Mar 26</span>
+              </div>
+              <p class="original-text">Cohere has released an Apache 2.0 model on @huggingface. No restricted license. No "research only." Actually open. Respect. Is this a one-off or a direction change for Cohere?</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 8. Paperclip -->
+        <article class="card card-agent" data-index="8">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Paperclip: Run a Startup<br>With 0 Employees" data-zh="Paperclip：零员工<br>运营一家创业公司">Paperclip: Zero-Employee<br>Startup</h2>
+              <p class="card-content" data-en="Open-source project Paperclip lets you hire AI agent teams — CEO, CTO, and more — to run a startup with zero employees.<br><br>One of the fastest growing open-source AI projects.<br><br>309K views." data-zh="开源项目Paperclip让你雇佣AI Agent团队（CEO、CTO等角色）来零员工运营创业公司。<br><br>增长最快的开源AI项目之一。<br><br>30.9万浏览。">Paperclip: Zero Employees</p>
+              <div class="card-meta"><span class="source-tag">gregisenberg</span></div>
+              <div class="category-label" data-en="Agent" data-zh="Agent">Agent</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">GREG ISENBERG</span>
+                <span class="tweet-handle">@gregisenberg</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">I met the guy behind Paperclip. He won't show his face, but he just built one of the FASTEST growing open-source projects in AI. How to use Paperclip to hire AI agents to ACTUALLY run a startup with 0 employees.</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 9. Coding Agent Rewrites Canon -->
+        <article class="card card-product" data-index="9">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="Agent Rewrites Canon<br>Webcam App Overnight" data-zh="Agent一夜重写<br>Canon摄像头软件">Agent Rewrites Canon<br>Software Overnight</h2>
+              <p class="card-content" data-en="Dan Shapiro asked a coding agent to fix Canon's crashing webcam software.<br><br>Woke up to a brand new Rust webcam app that has worked perfectly ever since.<br><br>Ethan Mollick: 'Great little story.' 21K views." data-zh="Dan Shapiro让coding agent修复Canon不断崩溃的webcam软件。<br><br>醒来发现agent用Rust写了一个全新应用，此后再没崩溃过。<br><br>Mollick：「很棒的小故事。」2.1万浏览。">Agent Rewrites Canon App</p>
+              <div class="card-meta"><span class="source-tag">emollick</span><span class="source-tag">danshapiro</span></div>
+              <div class="category-label" data-en="Dev Tools" data-zh="开发">Dev Tools</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">Ethan Mollick</span>
+                <span class="tweet-handle">@emollick</span>
+                <span class="tweet-time">· Mar 27</span>
+              </div>
+              <p class="original-text">Great little story from @danshapiro about how he asked a coding agent to fix the official webcam software from Canon that kept crashing. He woke up to a new, fully functional Rust webcam app that has worked ever since.</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 10. ChatGPT Pro Pen -->
+        <article class="card card-business" data-index="10">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2 class="card-title" data-en="ChatGPT Pro Gets<br>a Souvenir Pen" data-zh="ChatGPT Pro送<br>限量纪念笔">ChatGPT Pro<br>Souvenir Pen</h2>
+              <p class="card-content" data-en="OpenAI sends limited-edition pens to early ChatGPT Pro subscribers.<br><br>First 4,000 to fill the form. Not guaranteed, some countries excluded.<br><br>A nice touch for early adopters." data-zh="OpenAI给ChatGPT Pro早期订阅者送限量版纪念笔。<br><br>前4000名填表申领，不保证资格，部分国家无法配送。<br><br>对早期用户的一点心意。">ChatGPT Pro Pen</p>
+              <div class="card-meta"><span class="source-tag">dotey</span><span class="source-tag">btibor91</span></div>
+              <div class="category-label" data-en="Business" data-zh="商业">Business</div>
+            </div>
+            <div class="card-back">
+              <div class="tweet-header">
+                <span class="tweet-name">宝玉</span>
+                <span class="tweet-handle">@dotey</span>
+                <span class="tweet-time">· Mar 28</span>
+              </div>
+              <p class="original-text">OpenAI 给 ChatGPT Pro 早期订阅者送了个小礼物：一支限量版纪念笔。这次福利面向前 4000 名填表申领的 Pro 用户，填表不保证资格，部分国家可能无法配送。</p>
+              <div class="tap-hint" data-en="Tap to flip back" data-zh="点击返回">Tap to flip back</div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <p class="progress-text" id="progressText">1 / 11</p>
+    </div>
+  </div>
+
+  <script>
+  // PixelBlast Background
+  (function() {
+    const container = document.getElementById('pixelblast');
+    const VERTEX = `void main() { gl_Position = vec4(position, 1.0); }`;
+    const FRAGMENT = `
+      precision highp float;
+      uniform vec3 uColor;
+      uniform vec2 uResolution;
+      uniform float uTime;
+      uniform float uPixelSize;
+      uniform float uScale;
+      uniform float uDensity;
+      uniform float uEdgeFade;
+      const int MAX_CLICKS = 10;
+      uniform vec2 uClickPos[MAX_CLICKS];
+      uniform float uClickTimes[MAX_CLICKS];
+      float Bayer2(vec2 a) { a = floor(a); return fract(a.x / 2. + a.y * a.y * .75); }
+      #define Bayer4(a) (Bayer2(.5*(a))*0.25 + Bayer2(a))
+      #define Bayer8(a) (Bayer4(.5*(a))*0.25 + Bayer2(a))
+      float hash11(float n) { return fract(sin(n) * 43758.5453); }
+      float vnoise(vec3 p) {
+        vec3 ip = floor(p), fp = fract(p);
+        float n000 = hash11(dot(ip + vec3(0,0,0), vec3(1,57,113)));
+        float n100 = hash11(dot(ip + vec3(1,0,0), vec3(1,57,113)));
+        float n010 = hash11(dot(ip + vec3(0,1,0), vec3(1,57,113)));
+        float n110 = hash11(dot(ip + vec3(1,1,0), vec3(1,57,113)));
+        float n001 = hash11(dot(ip + vec3(0,0,1), vec3(1,57,113)));
+        float n101 = hash11(dot(ip + vec3(1,0,1), vec3(1,57,113)));
+        float n011 = hash11(dot(ip + vec3(0,1,1), vec3(1,57,113)));
+        float n111 = hash11(dot(ip + vec3(1,1,1), vec3(1,57,113)));
+        vec3 w = fp*fp*fp*(fp*(fp*6.0-15.0)+10.0);
+        return mix(mix(mix(n000,n100,w.x),mix(n010,n110,w.x),w.y),
+                   mix(mix(n001,n101,w.x),mix(n011,n111,w.x),w.y), w.z) * 2.0 - 1.0;
+      }
+      float fbm(vec2 uv, float t) {
+        vec3 p = vec3(uv * uScale, t);
+        float amp = 1.0, freq = 1.0, sum = 1.0;
+        for (int i = 0; i < 5; ++i) { sum += amp * vnoise(p * freq); freq *= 1.25; amp *= 1.0; }
+        return sum * 0.5 + 0.5;
+      }
+      float maskCircle(vec2 p, float cov) {
+        float r = sqrt(cov) * 0.25;
+        float d = length(p - 0.5) - r;
+        return cov * (1.0 - smoothstep(-0.01, 0.01, d * 2.0));
+      }
+      void main() {
+        float pixelSize = uPixelSize;
+        vec2 fragCoord = gl_FragCoord.xy - uResolution * 0.5;
+        float aspect = uResolution.x / uResolution.y;
+        vec2 pixelId = floor(fragCoord / pixelSize);
+        vec2 pixelUV = fract(fragCoord / pixelSize);
+        float cellPixelSize = 8.0 * pixelSize;
+        vec2 cellId = floor(fragCoord / cellPixelSize);
+        vec2 cellCoord = cellId * cellPixelSize;
+        vec2 uv = cellCoord / uResolution * vec2(aspect, 1.0);
+        float base = fbm(uv, uTime * 0.05);
+        base = base * 0.5 - 0.65;
+        float feed = base + (uDensity - 0.5) * 0.3;
+        float speed = 0.3, thickness = 0.1;
+        for (int i = 0; i < MAX_CLICKS; ++i) {
+          vec2 pos = uClickPos[i];
+          if (pos.x < 0.0) continue;
+          vec2 cuv = ((pos - uResolution * 0.5 - cellPixelSize * 0.5) / uResolution) * vec2(aspect, 1.0);
+          float t = max(uTime - uClickTimes[i], 0.0);
+          float r = distance(uv, cuv);
+          float waveR = speed * t;
+          float ring = exp(-pow((r - waveR) / thickness, 2.0));
+          float atten = exp(-1.0 * t) * exp(-10.0 * r);
+          feed = max(feed, ring * atten * 1.0);
+        }
+        float bayer = Bayer8(fragCoord / pixelSize) - 0.5;
+        float bw = step(0.5, feed + bayer);
+        float h = fract(sin(dot(pixelId, vec2(127.1, 311.7))) * 43758.5453);
+        float coverage = bw * (1.0 + (h - 0.5) * 0.0);
+        float M = maskCircle(pixelUV, coverage);
+        if (uEdgeFade > 0.0) {
+          vec2 norm = gl_FragCoord.xy / uResolution;
+          float edge = min(min(norm.x, norm.y), min(1.0 - norm.x, 1.0 - norm.y));
+          M *= smoothstep(0.0, uEdgeFade, edge);
+        }
+        gl_FragColor = vec4(uColor, M);
+      }
+    `;
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    container.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const MAX_CLICKS = 10;
+    const uniforms = {
+      uResolution: { value: new THREE.Vector2() },
+      uTime: { value: 0 },
+      uColor: { value: new THREE.Color('#B19EEF') },
+      uPixelSize: { value: 3 },
+      uScale: { value: 2 },
+      uDensity: { value: 1 },
+      uEdgeFade: { value: 0.5 },
+      uClickPos: { value: Array.from({ length: MAX_CLICKS }, () => new THREE.Vector2(-1, -1)) },
+      uClickTimes: { value: new Float32Array(MAX_CLICKS) }
+    };
+    const material = new THREE.ShaderMaterial({
+      vertexShader: VERTEX, fragmentShader: FRAGMENT, uniforms, transparent: true, depthTest: false, depthWrite: false
+    });
+    const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+    scene.add(quad);
+    const setSize = () => {
+      const w = container.clientWidth || 1, h = container.clientHeight || 1;
+      renderer.setSize(w, h, false);
+      uniforms.uResolution.value.set(renderer.domElement.width, renderer.domElement.height);
+      uniforms.uPixelSize.value = 3 * renderer.getPixelRatio();
+    };
+    setSize();
+    window.addEventListener('resize', setSize);
+    let clickIx = 0;
+    const onPointerDown = e => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const scaleX = renderer.domElement.width / rect.width;
+      const scaleY = renderer.domElement.height / rect.height;
+      const fx = (e.clientX - rect.left) * scaleX;
+      const fy = (rect.height - (e.clientY - rect.top)) * scaleY;
+      uniforms.uClickPos.value[clickIx].set(fx, fy);
+      uniforms.uClickTimes.value[clickIx] = uniforms.uTime.value;
+      clickIx = (clickIx + 1) % MAX_CLICKS;
+    };
+    renderer.domElement.addEventListener('pointerdown', onPointerDown, { passive: true });
+    const clock = new THREE.Clock();
+    const timeOffset = Math.random() * 1000;
+    const animate = () => {
+      uniforms.uTime.value = timeOffset + clock.getElapsedTime() * 0.5;
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    };
+    animate();
+  })();
+
+  // Card Swiper
+  const wrapper = document.getElementById('wrapper');
+  const track = document.getElementById('track');
+  const cards = document.querySelectorAll('.card');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const total = cards.length;
+  let current = 0, startX = 0, currentX = 0, isDragging = false, trackOffset = 0;
+  function getCardWidth() { return cards[0].offsetWidth + 16; }
+  function getCenterOffset() { return (wrapper.offsetWidth - cards[0].offsetWidth) / 2; }
+  function updatePosition(animate = true) {
+    trackOffset = getCenterOffset() - current * getCardWidth();
+    track.classList.toggle('dragging', !animate);
+    track.style.transform = `translateX(${trackOffset}px)`;
+    cards.forEach((c, i) => c.classList.toggle('active', i === current));
+    progressFill.style.width = `${((current + 1) / total) * 100}%`;
+    progressText.textContent = `${current + 1} / ${total}`;
+  }
+  function handleStart(x) { startX = currentX = x; isDragging = true; track.classList.add('dragging'); }
+  function handleMove(x) { if (!isDragging) return; currentX = x; track.style.transform = `translateX(${trackOffset + currentX - startX}px)`; }
+  function handleEnd() {
+    if (!isDragging) return; isDragging = false;
+    const diff = currentX - startX, threshold = getCardWidth() * 0.15;
+    if (diff < -threshold && current < total - 1) current++;
+    else if (diff > threshold && current > 0) current--;
+    updatePosition();
+  }
+  wrapper.addEventListener('touchstart', e => handleStart(e.touches[0].clientX), { passive: true });
+  wrapper.addEventListener('touchmove', e => handleMove(e.touches[0].clientX), { passive: true });
+  wrapper.addEventListener('touchend', handleEnd);
+  wrapper.addEventListener('mousedown', e => { handleStart(e.clientX); e.preventDefault(); });
+  document.addEventListener('mousemove', e => handleMove(e.clientX));
+  document.addEventListener('mouseup', handleEnd);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && current < total - 1) { current++; updatePosition(); }
+    else if (e.key === 'ArrowLeft' && current > 0) { current--; updatePosition(); }
+  });
+  updatePosition();
+  window.addEventListener('resize', () => updatePosition());
+
+  // Card flip
+  cards.forEach(card => {
+    if (card.classList.contains('card-intro')) return;
+    let tapStart = 0, tapX = 0;
+    card.addEventListener('touchstart', e => { tapStart = Date.now(); tapX = e.touches[0].clientX; }, { passive: true });
+    card.addEventListener('touchend', e => {
+      if (Date.now() - tapStart < 300 && Math.abs(e.changedTouches[0].clientX - tapX) < 20 && card.classList.contains('active'))
+        card.classList.toggle('flipped');
+    });
+    card.addEventListener('click', () => { if (card.classList.contains('active')) card.classList.toggle('flipped'); });
+  });
+
+  // Gyroscope
+  (function() {
+    let tiltX = 0, tiltY = 0, targetTiltX = 0, targetTiltY = 0;
+    const maxTilt = 15; let gyroEnabled = false;
+    const handleOrientation = e => {
+      targetTiltX = Math.max(-maxTilt, Math.min(maxTilt, (e.gamma || 0)));
+      targetTiltY = Math.max(-maxTilt, Math.min(maxTilt, ((e.beta || 0) - 45) * 0.8));
+    };
+    const enableGyro = async () => {
+      if (gyroEnabled) return;
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try { if ((await DeviceOrientationEvent.requestPermission()) === 'granted') { window.addEventListener('deviceorientation', handleOrientation, true); gyroEnabled = true; } } catch(e) {}
+      } else if (window.DeviceOrientationEvent) { window.addEventListener('deviceorientation', handleOrientation, true); gyroEnabled = true; }
+    };
+    const animateTilt = () => {
+      tiltX += (targetTiltX - tiltX) * 0.1; tiltY += (targetTiltY - tiltY) * 0.1;
+      const activeCard = document.querySelector('.card.active');
+      if (activeCard) {
+        activeCard.style.setProperty('--highlight-x', `${50 + tiltX * 2}%`);
+        activeCard.style.transform = `scale(1) translate3d(${tiltX*0.6}px, ${tiltY*0.6}px, 0) rotateX(${-tiltY*0.3}deg) rotateY(${tiltX*0.3}deg)`;
+      }
+      requestAnimationFrame(animateTilt);
+    };
+    ['touchstart', 'click'].forEach(evt => document.addEventListener(evt, enableGyro, { once: true }));
+    document.addEventListener('mousemove', e => {
+      if (gyroEnabled) return;
+      targetTiltX = ((e.clientX / window.innerWidth - 0.5) * 2) * maxTilt;
+      targetTiltY = ((e.clientY / window.innerHeight - 0.5) * 2) * maxTilt;
+    });
+    animateTilt();
+  })();
+
+  // Language toggle
+  (function() {
+    let currentLang = 'en';
+    const toggleBtn = document.getElementById('langToggle');
+    function setLanguage(lang) {
+      currentLang = lang;
+      toggleBtn.textContent = lang === 'en' ? 'EN' : '中';
+      document.querySelectorAll('[data-en][data-zh]').forEach(el => {
+        if (el.classList.contains('original-text')) return;
+        el.innerHTML = lang === 'en' ? el.dataset.en : el.dataset.zh;
+      });
+      localStorage.setItem('ai-daily-lang', lang);
+    }
+    toggleBtn.addEventListener('click', e => { e.stopPropagation(); setLanguage(currentLang === 'en' ? 'zh' : 'en'); });
+    setLanguage(localStorage.getItem('ai-daily-lang') || 'en');
+  })();
+  </script>
+</body>
+</html>
